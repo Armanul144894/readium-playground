@@ -1,0 +1,21 @@
+"use client";
+
+import { makeStore, ThStoreProvider, StatefulGlobalPreferencesProvider } from "@edrlab/thorium-web/reader";
+import customReducer from "@/lib/customReducer";
+
+export const store = makeStore("readium-playground", {
+  custom: {
+    reducer: customReducer,
+    persist: true
+  }
+});
+
+export const CustomProviders = ({ children }: { children: React.ReactNode } ) => {
+  return(
+    <ThStoreProvider store={ store }>
+      <StatefulGlobalPreferencesProvider>
+        { children }
+      </StatefulGlobalPreferencesProvider>
+    </ThStoreProvider>
+  )
+}
