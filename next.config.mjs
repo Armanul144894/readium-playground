@@ -52,7 +52,7 @@ const nextConfig = {
       return [
         {
           source: "/read/manifest/:path*",
-          destination: "https://readium-playground-indol.vercel.app/",
+          destination: "",
           permanent: false,
         },
       ];
