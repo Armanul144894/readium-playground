@@ -18,19 +18,19 @@ import {
 } from "@/app/BooklyUi";
 import { useBooklyCatalog } from "@/app/useBooklyCatalog";
 
-type Params = { id: string };
+type Params = { slug: string };
 
 type Props = {
   params: Promise<Params>;
 };
 
 export default function EbookProductPage({ params }: Props) {
-  const productId = decodeURIComponent(use(params).id);
+  const productSlug = decodeURIComponent(use(params).slug);
   const { catalog, isLoading, error } = useBooklyCatalog();
 
   const book = useMemo(() => (
-    catalog.moreProducts.find((item) => item.id === productId)
-  ), [catalog.moreProducts, productId]);
+    catalog.moreProducts.find((item) => item.slug === productSlug || item.id === productSlug)
+  ), [catalog.moreProducts, productSlug]);
 
   return (
     <AppShell>
@@ -79,7 +79,7 @@ export default function EbookProductPage({ params }: Props) {
                 ) }
                 <Link
                   className="inline-flex min-h-11 items-center justify-center rounded-lg border border-slate-300 px-5 font-extrabold text-teal-700 hover:bg-teal-50 focus-visible:outline-[3px] focus-visible:outline-offset-2 focus-visible:outline-teal-700"
-                  href="/#more-products"
+                  href="/products"
                 >
                   Back to products
                 </Link>
@@ -93,11 +93,11 @@ export default function EbookProductPage({ params }: Props) {
               title="Recommended eBooks"
             />
             <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6">
-              { catalog.moreProducts.filter((item) => item.id !== book.id).slice(0, 6).map((item) => (
+              { catalog.moreProducts.filter((item) => item.slug !== book.slug).slice(0, 6).map((item) => (
                 <Link
                   className="rounded-lg border border-slate-200 bg-white p-3 text-sm font-extrabold text-slate-800 shadow-sm transition hover:-translate-y-1 hover:border-teal-200 hover:text-teal-700 hover:shadow-lg"
                   href={ item.productUrl }
-                  key={ item.id }
+                  key={ item.slug }
                 >
                   { item.title }
                 </Link>
@@ -111,4 +111,3 @@ export default function EbookProductPage({ params }: Props) {
     </AppShell>
   );
 }
-

@@ -18,21 +18,21 @@ import {
 } from "@/app/BooklyUi";
 import { useBooklyCatalog } from "@/app/useBooklyCatalog";
 
-type Params = { id: string };
+type Params = { slug: string };
 
 type Props = {
   params: Promise<Params>;
 };
 
 export default function CategoryProductsPage({ params }: Props) {
-  const categoryId = decodeURIComponent(use(params).id);
+  const categorySlug = decodeURIComponent(use(params).slug);
   const { catalog, isLoading, error } = useBooklyCatalog();
 
   const category = useMemo(() => (
-    catalog.categories.find((item) => item.id === categoryId)
-  ), [catalog.categories, categoryId]);
+    catalog.categories.find((item) => item.slug === categorySlug || item.id === categorySlug)
+  ), [catalog.categories, categorySlug]);
 
-  const books = category ? catalog.booksByCategoryId.get(category.id) ?? [] : [];
+  const books = category ? catalog.booksByCategorySlug.get(category.slug) ?? [] : [];
 
   return (
     <AppShell>
@@ -81,7 +81,7 @@ export default function CategoryProductsPage({ params }: Props) {
           title="Other Categories"
         />
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
-          { catalog.categories.filter((item) => item.id !== categoryId).slice(0, 5).map((item) => (
+          { catalog.categories.filter((item) => item.slug !== categorySlug).slice(0, 5).map((item) => (
             <CategoryCard
               category={ item }
               key={ item.id }

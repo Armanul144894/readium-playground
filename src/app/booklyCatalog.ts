@@ -42,6 +42,10 @@ export type BooklyBook = {
   rating?: number;
   price?: number;
   discount?: number;
+  progress?: number;
+  readProgress?: number;
+  readPercentage?: number;
+  readingProgress?: number;
 };
 
 export type BooklyCategory = {
@@ -73,11 +77,14 @@ type BooklyResponse = {
 
 export type DisplayBook = {
   id: string;
+  slug: string;
   title: string;
   subtitle?: string;
   author?: string;
   cover: string;
   readerUrl?: string;
+  progressStorageKey?: string;
+  readProgress: number;
   productUrl: Route;
   color: string;
   rating?: number;
@@ -87,6 +94,7 @@ export type DisplayBook = {
 
 export type DisplayCategory = {
   id: string;
+  slug: string;
   name: string;
   icon?: string;
   color: string;
@@ -95,6 +103,7 @@ export type DisplayCategory = {
 
 export type DisplayProfile = {
   id: string;
+  slug: string;
   name: string;
   imageUrl?: string;
   href: Route;
@@ -112,8 +121,8 @@ export type BooklyCatalogModel = {
   authors: DisplayProfile[];
   bookSections: DisplayBookSection[];
   moreProducts: DisplayBook[];
-  booksByCategoryId: Map<string, DisplayBook[]>;
-  booksByAuthorId: Map<string, DisplayBook[]>;
+  booksByCategorySlug: Map<string, DisplayBook[]>;
+  booksByAuthorSlug: Map<string, DisplayBook[]>;
 };
 
 export const isRecord = (value: unknown): value is Record<string, unknown> => (
@@ -169,6 +178,18 @@ export const formatPrice = (price?: number): string | null => (
   typeof price === "number" ? `$${ price.toFixed(2) }` : null
 );
 
+export const slugify = (value: string): string => {
+  const slug = value
+    .normalize("NFKD")
+    .toLowerCase()
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/&/g, " and ")
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "");
+
+  return slug || "bookly-item";
+};
+
 const encodeBase64Url = (value: string): string => {
   const bytes = new TextEncoder().encode(value);
   const binary = Array.from(bytes, (byte) => String.fromCharCode(byte)).join("");
@@ -189,6 +210,36 @@ const createReaderUrl = (epubPath: string, isManifestEnabled: boolean): string =
   return `/read/manifest/${ encodeURIComponent(manifestUrl) }`;
 };
 
+const getProgressStorageKey = (readerUrl?: string): string | undefined => {
+  const manifestReaderPrefix = "/read/manifest/";
+
+  if (!readerUrl?.startsWith(manifestReaderPrefix)) return undefined;
+
+  try {
+    const manifestUrl = decodeURIComponent(readerUrl.slice(manifestReaderPrefix.length));
+
+    return `${ manifestUrl }-current-location`;
+  } catch {
+    return undefined;
+  }
+};
+
+const normalizeReadProgress = (value?: number): number | undefined => {
+  if (typeof value !== "number" || !Number.isFinite(value)) return undefined;
+
+  const percent = value > 0 && value <= 1 ? value * 100 : value;
+
+  return Math.max(0, Math.min(100, Math.round(percent)));
+};
+
+const getBookReadProgress = (book: BooklyBook): number => (
+  normalizeReadProgress(book.readProgress)
+  ?? normalizeReadProgress(book.readPercentage)
+  ?? normalizeReadProgress(book.readingProgress)
+  ?? normalizeReadProgress(book.progress)
+  ?? 0
+);
+
 const getGutenbergEpubFromCover = (imagePath?: string): string | undefined => {
   const gutenbergId = imagePath?.match(/gutenberg\.org\/cache\/epub\/(\d+)\//)?.[1];
 
@@ -207,9 +258,7 @@ const getBookUrl = (
   return epubPath ? createReaderUrl(epubPath, isManifestEnabled) : undefined;
 };
 
-const toProductRoute = (book: BooklyBook, title: string): Route => (
-  `/ebooks/${ encodeURIComponent(book.id ?? title.toLowerCase().replace(/[^a-z0-9]+/g, "-")) }` as Route
-);
+const toProductRoute = (slug: string): Route => `/ebooks/${ encodeURIComponent(slug) }` as Route;
 
 const toDisplayBook = (
   book: BooklyBook,
@@ -221,14 +270,20 @@ const toDisplayBook = (
 
   if (!title || !cover) return null;
 
+  const slug = slugify(title);
+  const readerUrl = getBookUrl(book, epubPathsById, isManifestEnabled);
+
   return {
     id: book.id ?? `${ title }-${ cover }`,
+    slug,
     title,
     subtitle: getLocalizedText(book.subtitle) || undefined,
     author: getLocalizedText(book.author?.name) || undefined,
     cover,
-    readerUrl: getBookUrl(book, epubPathsById, isManifestEnabled),
-    productUrl: toProductRoute(book, title),
+    readerUrl,
+    progressStorageKey: getProgressStorageKey(readerUrl),
+    readProgress: getBookReadProgress(book),
+    productUrl: toProductRoute(slug),
     color: toCssColor(book.coverColor ?? book.color),
     rating: book.rating,
     price: book.price,
@@ -254,8 +309,8 @@ const uniqueBooks = (books: DisplayBook[]): DisplayBook[] => {
   const unique = new Map<string, DisplayBook>();
 
   books.forEach((book) => {
-    if (!unique.has(book.id)) {
-      unique.set(book.id, book);
+    if (!unique.has(book.slug)) {
+      unique.set(book.slug, book);
     }
   });
 
@@ -274,13 +329,13 @@ const appendBook = (map: Map<string, DisplayBook[]>, key: string | undefined, bo
 
 const normalizeName = (value: string): string => value.toLowerCase().replace(/[^a-z0-9]+/g, " ").trim();
 
-const findAuthorIdForBook = (authorName: string | undefined, authors: DisplayProfile[]): string | undefined => {
+const findAuthorSlugForBook = (authorName: string | undefined, authors: DisplayProfile[]): string | undefined => {
   if (!authorName) return undefined;
 
   const normalizedBookAuthor = normalizeName(authorName);
   const exactMatch = authors.find((author) => normalizeName(author.name) === normalizedBookAuthor);
 
-  if (exactMatch) return exactMatch.id;
+  if (exactMatch) return exactMatch.slug;
 
   const bookAuthorTokens = new Set(normalizedBookAuthor.split(" ").filter(Boolean));
   const tokenMatch = authors.find((author) => {
@@ -289,7 +344,7 @@ const findAuthorIdForBook = (authorName: string | undefined, authors: DisplayPro
     return authorTokens.length > 0 && authorTokens.every((token) => bookAuthorTokens.has(token));
   });
 
-  return tokenMatch?.id;
+  return tokenMatch?.slug;
 };
 
 export const createBooklyCatalogModel = (
@@ -312,13 +367,15 @@ export const createBooklyCatalogModel = (
     .map((item) => {
       const id = item.id ?? getLocalizedText(item.name);
       const name = getLocalizedText(item.name);
+      const slug = slugify(name);
 
       return {
         id,
+        slug,
         name,
         icon: item.icon,
         color: toCssColor(item.color),
-        href: `/categories/${ encodeURIComponent(id) }` as Route
+        href: `/categories/${ encodeURIComponent(slug) }` as Route
       };
     })
     .filter((item) => item.name) ?? [];
@@ -330,19 +387,22 @@ export const createBooklyCatalogModel = (
     .map((item) => {
       const id = item.id ?? getLocalizedText(item.name);
       const name = getLocalizedText(item.name);
+      const slug = slugify(name);
 
       return {
         id,
+        slug,
         name,
         imageUrl: item.imageUrl,
-        href: `/authors/${ encodeURIComponent(id) }` as Route
+        href: `/authors/${ encodeURIComponent(slug) }` as Route
       };
     })
     .filter((item) => item.name) ?? [];
 
-  const categoryNamesById = new Map(categories.map((category) => [category.id, category.name]));
-  const booksByCategoryId = new Map<string, DisplayBook[]>();
-  const booksByAuthorId = new Map<string, DisplayBook[]>();
+  const categorySlugsById = new Map(categories.map((category) => [category.id, category.slug]));
+  const categorySlugsByName = new Set(categories.map((category) => category.slug));
+  const booksByCategorySlug = new Map<string, DisplayBook[]>();
+  const booksByAuthorSlug = new Map<string, DisplayBook[]>();
 
   const bookSections = sections
     .filter((section) => section.type?.includes("book_list") || section.type === "top_of_the_month")
@@ -353,16 +413,22 @@ export const createBooklyCatalogModel = (
         .map((item) => toDisplayBook(item, epubPathsById, isManifestEnabled))
         .filter((item): item is DisplayBook => item !== null) ?? [];
 
-      const categoryId = section.id && categoryNamesById.has(section.id) ? section.id : undefined;
+      const sectionTitle = getLocalizedText(section.name);
+      const sectionSlug = slugify(sectionTitle);
+      const categorySlug = categorySlugsByName.has(sectionSlug)
+        ? sectionSlug
+        : section.id
+          ? categorySlugsById.get(section.id)
+          : undefined;
 
       books.forEach((book) => {
-        appendBook(booksByCategoryId, categoryId, book);
-        appendBook(booksByAuthorId, findAuthorIdForBook(book.author, authors), book);
+        appendBook(booksByCategorySlug, categorySlug, book);
+        appendBook(booksByAuthorSlug, findAuthorSlugForBook(book.author, authors), book);
       });
 
       return {
         id: `${ section.type ?? "book-section" }-${ section.id ?? index }`,
-        title: getLocalizedText(section.name),
+        title: sectionTitle,
         books
       };
     })
@@ -370,7 +436,7 @@ export const createBooklyCatalogModel = (
 
   const moreProducts = uniqueBooks([...banners, ...bookSections.flatMap((section) => section.books)]);
 
-  return { banners, categories, authors, bookSections, moreProducts, booksByCategoryId, booksByAuthorId };
+  return { banners, categories, authors, bookSections, moreProducts, booksByCategorySlug, booksByAuthorSlug };
 };
 
 export const fetchBooklySections = async (signal?: AbortSignal): Promise<BooklySection[]> => {

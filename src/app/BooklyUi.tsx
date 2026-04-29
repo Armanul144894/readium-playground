@@ -1,15 +1,16 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import type { CSSProperties, ReactNode } from "react";
 
 import Image from "next/image";
 import Link from "next/link";
 
-import {
+import { formatPrice } from "./booklyCatalog";
+import type {
   DisplayBook,
   DisplayCategory,
-  DisplayProfile,
-  formatPrice
+  DisplayProfile
 } from "./booklyCatalog";
 
 const homeHref = "/" as const;
@@ -53,7 +54,7 @@ export const SiteHeader = () => (
     >
       <Link className="rounded-lg px-3 py-2 hover:bg-teal-50 hover:text-teal-700 focus-visible:outline-[3px] focus-visible:outline-offset-2 focus-visible:outline-teal-700" href="/#categories">Categories</Link>
       <Link className="rounded-lg px-3 py-2 hover:bg-teal-50 hover:text-teal-700 focus-visible:outline-[3px] focus-visible:outline-offset-2 focus-visible:outline-teal-700" href="/#authors">Authors</Link>
-      <Link className="rounded-lg px-3 py-2 hover:bg-teal-50 hover:text-teal-700 focus-visible:outline-[3px] focus-visible:outline-offset-2 focus-visible:outline-teal-700" href="/#more-products">Products</Link>
+      <Link className="rounded-lg px-3 py-2 hover:bg-teal-50 hover:text-teal-700 focus-visible:outline-[3px] focus-visible:outline-offset-2 focus-visible:outline-teal-700" href="/products">Products</Link>
     </nav>
   </header>
 );
@@ -70,7 +71,7 @@ export const SiteFooter = () => (
     >
       <Link className="rounded-lg px-2 py-1 hover:bg-teal-50 hover:text-teal-700" href="/#categories">Categories</Link>
       <Link className="rounded-lg px-2 py-1 hover:bg-teal-50 hover:text-teal-700" href="/#authors">Authors</Link>
-      <Link className="rounded-lg px-2 py-1 hover:bg-teal-50 hover:text-teal-700" href="/#more-products">Products</Link>
+      <Link className="rounded-lg px-2 py-1 hover:bg-teal-50 hover:text-teal-700" href="/products">Products</Link>
       <Link className="rounded-lg px-2 py-1 hover:bg-teal-50 hover:text-teal-700" href={ homeHref }>Home</Link>
     </nav>
   </footer>
@@ -145,11 +146,93 @@ export const BookMeta = ({ book }: { book: DisplayBook }) => {
   if (!book.rating && !price && !book.discount) return null;
 
   return (
-    <p className="mt-auto flex flex-wrap gap-1.5 text-xs font-bold text-slate-700">
+    <p className="flex flex-wrap gap-1.5 text-xs font-bold text-slate-700">
       { book.rating && <span className="rounded-md border border-slate-200 bg-slate-50 px-2 py-1">Rating { book.rating.toFixed(1) }</span> }
       { price && <span className="rounded-md border border-slate-200 bg-slate-50 px-2 py-1">{ price }</span> }
       { Boolean(book.discount) && <span className="rounded-md border border-amber-200 bg-amber-50 px-2 py-1 text-amber-800">{ book.discount }% off</span> }
     </p>
+  );
+};
+
+const normalizeProgressPercent = (value?: number): number => {
+  if (typeof value !== "number" || !Number.isFinite(value)) return 0;
+
+  const percent = value > 0 && value <= 1 ? value * 100 : value;
+
+  return Math.max(0, Math.min(100, Math.round(percent)));
+};
+
+const getStoredProgressPercent = (storageKey?: string): number | undefined => {
+  if (!storageKey || typeof window === "undefined") return undefined;
+
+  try {
+    const rawValue = window.localStorage.getItem(storageKey);
+    if (!rawValue) return undefined;
+
+    const locator = JSON.parse(rawValue) as { locations?: Record<string, unknown> };
+    const locations = locator?.locations;
+    const value = typeof locations?.totalProgression === "number"
+      ? locations.totalProgression
+      : typeof locations?.progression === "number"
+        ? locations.progression
+        : undefined;
+
+    return typeof value === "number" ? normalizeProgressPercent(value) : undefined;
+  } catch {
+    return undefined;
+  }
+};
+
+const useReadProgress = (book: DisplayBook): number => {
+  const [progress, setProgress] = useState(() => normalizeProgressPercent(book.readProgress));
+
+  useEffect(() => {
+    const catalogProgress = normalizeProgressPercent(book.readProgress);
+    const syncProgress = () => {
+      setProgress(getStoredProgressPercent(book.progressStorageKey) ?? catalogProgress);
+    };
+
+    syncProgress();
+    window.addEventListener("focus", syncProgress);
+
+    const handleStorage = (event: StorageEvent) => {
+      if (event.key === book.progressStorageKey) syncProgress();
+    };
+
+    window.addEventListener("storage", handleStorage);
+
+    return () => {
+      window.removeEventListener("focus", syncProgress);
+      window.removeEventListener("storage", handleStorage);
+    };
+  }, [book.progressStorageKey, book.readProgress]);
+
+  return progress;
+};
+
+export const BookReadProgress = ({ book }: { book: DisplayBook }) => {
+  const progress = useReadProgress(book);
+
+  return (
+    <div className="mb-3">
+      <div className="mb-1 flex items-center justify-between gap-3 text-[0.7rem] font-extrabold uppercase tracking-normal text-slate-500">
+        <span>Read</span>
+        <span className="text-teal-700">{ progress }%</span>
+      </div>
+      <div
+        aria-label={ `${ progress }% read` }
+        aria-valuemax={ 100 }
+        aria-valuemin={ 0 }
+        aria-valuenow={ progress }
+        className="h-1.5 overflow-hidden rounded-full bg-slate-100"
+        role="progressbar"
+      >
+        <span
+          className="block h-full rounded-full bg-teal-600 transition-[width] duration-300"
+          style={{ width: `${ progress }%` }}
+        />
+      </div>
+    </div>
   );
 };
 
@@ -180,7 +263,10 @@ export const BookCard = ({
       <h3 className="mb-2 text-sm font-extrabold leading-snug tracking-normal text-slate-950 group-hover:text-teal-700 sm:text-base">{ book.title }</h3>
       { book.author && <p className="mb-3 text-sm leading-5 text-slate-600">{ book.author }</p> }
       { !book.author && book.subtitle && <p className="mb-3 text-sm leading-5 text-slate-600">{ book.subtitle }</p> }
-      <BookMeta book={ book } />
+      <div className="mt-auto">
+        <BookReadProgress book={ book } />
+        <BookMeta book={ book } />
+      </div>
     </div>
   </Link>
 );

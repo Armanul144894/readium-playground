@@ -19,21 +19,21 @@ import {
 } from "@/app/BooklyUi";
 import { useBooklyCatalog } from "@/app/useBooklyCatalog";
 
-type Params = { id: string };
+type Params = { slug: string };
 
 type Props = {
   params: Promise<Params>;
 };
 
 export default function AuthorProductsPage({ params }: Props) {
-  const authorId = decodeURIComponent(use(params).id);
+  const authorSlug = decodeURIComponent(use(params).slug);
   const { catalog, isLoading, error } = useBooklyCatalog();
 
   const author = useMemo(() => (
-    catalog.authors.find((item) => item.id === authorId)
-  ), [catalog.authors, authorId]);
+    catalog.authors.find((item) => item.slug === authorSlug || item.id === authorSlug)
+  ), [catalog.authors, authorSlug]);
 
-  const books = author ? catalog.booksByAuthorId.get(author.id) ?? [] : [];
+  const books = author ? catalog.booksByAuthorSlug.get(author.slug) ?? [] : [];
 
   return (
     <AppShell>
@@ -95,7 +95,7 @@ export default function AuthorProductsPage({ params }: Props) {
           title="Other Authors"
         />
         <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-7">
-          { catalog.authors.filter((item) => item.id !== authorId).slice(0, 7).map((item) => (
+          { catalog.authors.filter((item) => item.slug !== authorSlug).slice(0, 7).map((item) => (
             <AuthorCard
               author={ item }
               key={ item.id }

@@ -11,6 +11,7 @@ import {
   BookCover,
   BookGrid,
   BookMeta,
+  BookReadProgress,
   CategoryCard,
   EmptyState,
   SectionHeading,
@@ -33,12 +34,12 @@ const HeroBanner = ({ books }: { books: DisplayBook[] }) => {
         <h1 className="mb-5 max-w-3xl text-5xl font-black leading-[0.95] tracking-normal text-white sm:text-6xl lg:text-7xl">Bookly eBooks</h1>
         <p className="mb-7 max-w-xl text-base leading-7 text-slate-200 sm:text-lg">Discover curated classics, author picks, featured deals, and reader-ready EPUBs in one polished digital shelf.</p>
         <div className="flex flex-wrap gap-3">
-          <a
+          <Link
             className="inline-flex min-h-11 items-center justify-center rounded-lg bg-teal-200 px-5 font-extrabold text-slate-950 hover:bg-teal-100 focus-visible:outline-[3px] focus-visible:outline-offset-2 focus-visible:outline-teal-200"
-            href="#more-products"
+            href="/products"
           >
             Browse products
-          </a>
+          </Link>
           <Link
             className="inline-flex min-h-11 items-center justify-center rounded-lg border border-white/30 px-5 font-extrabold text-white hover:bg-white/10 focus-visible:outline-[3px] focus-visible:outline-offset-2 focus-visible:outline-teal-200"
             href={ primaryBook.productUrl }
@@ -115,7 +116,10 @@ const FeaturedBooks = ({ books }: { books: DisplayBook[] }) => {
             <div className="flex min-w-0 flex-col p-4">
               <h3 className="mb-2 text-lg font-extrabold leading-tight tracking-normal text-slate-950 group-hover:text-teal-700">{ book.title }</h3>
               { book.subtitle && <p className="mb-4 text-sm leading-6 text-slate-600">{ book.subtitle }</p> }
-              <BookMeta book={ book } />
+              <div className="mt-auto">
+                <BookReadProgress book={ book } />
+                <BookMeta book={ book } />
+              </div>
             </div>
           </Link>
         )) }
@@ -140,7 +144,7 @@ const BookSection = ({
       action={ (
         <Link
           className="text-sm font-extrabold text-teal-700 hover:text-teal-900"
-          href="#more-products"
+          href="/products"
         >
           View all
         </Link>
@@ -198,6 +202,14 @@ export default function Home() {
         <SectionHeading
           eyebrow="Shop the library"
           title="More Products"
+          action={ (
+            <Link
+              className="text-sm font-extrabold text-teal-700 hover:text-teal-900"
+              href="/products"
+            >
+              All products
+            </Link>
+          ) }
         />
         <BookGrid books={ moreProducts } />
       </section>
