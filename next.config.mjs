@@ -14,6 +14,18 @@ const nextConfig = {
         protocol: "https",
         hostname: "www.archive.org",
       },
+      {
+        protocol: "https",
+        hostname: "mh15-cdn.b-cdn.net",
+      },
+      {
+        protocol: "https",
+        hostname: "www.gutenberg.org",
+      },
+      {
+        protocol: "https",
+        hostname: "standardebooks.org",
+      },
     ],
   },
   

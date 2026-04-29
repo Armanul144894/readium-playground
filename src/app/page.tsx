@@ -1,204 +1,231 @@
 "use client";
 
-import { useEffect, useState } from "react";
-
-import { PublicationGrid } from "@edrlab/thorium-web/misc";
-import Image from "next/image";
+import Link from "next/link";
 
 import "./home.css";
-import "@edrlab/thorium-web/misc/styles";
 
-import { isManifestRouteEnabled } from "./ManifestRouteEnabled";
+import {
+  AppShell,
+  AuthorCard,
+  BookCard,
+  BookCover,
+  BookGrid,
+  BookMeta,
+  CategoryCard,
+  EmptyState,
+  SectionHeading,
+  SiteFooter,
+  SiteHeader,
+  StatusMessage
+} from "./BooklyUi";
+import { DisplayBook, DisplayBookSection } from "./booklyCatalog";
+import { useBooklyCatalog } from "./useBooklyCatalog";
 
-const books = [
-  {
-    title: "Moby Dick",
-    author: "Herman Melville",
-    cover: "/images/MobyDick.jpg",
-    url: "/read/moby-dick",
-    rendition: "Reflowable"
-  },
-  {
-    title: "The House of the Seven Gables",
-    author: "Nathaniel Hawthorne",
-    cover: "/images/TheHouseOfTheSevenGables.jpg",
-    url: "/read/the-house-of-seven-gables",
-    rendition: "Reflowable"
-  },
-  {
-    title: "Les Diaboliques",
-    author: "Jules Barbey d'Aurevilly",
-    cover: "/images/LesDiaboliques.png",
-    url: "/read/les-diaboliques",
-    rendition: "Reflowable"
-  },
-  {
-    title: "Bella the Dragon",
-    author: "Barbara Nick, Elaine Steckler",
-    cover: "/images/Bella.jpg",
-    url: "/read/bella-the-dragon",
-    rendition: "Fixed Layout"
-  }
-];
+const HeroBanner = ({ books }: { books: DisplayBook[] }) => {
+  if (books.length === 0) return null;
 
-const onlineBooks = [
-  {
-    title: "Accessible EPUB3",
-    author: "Matt Garrish",
-    cover: "/images/accessibleEpub3.jpg",
-    url: "/read/manifest/https%3A%2F%2Fpublication-server.readium.org%2Fwebpub%2FaHR0cHM6Ly9naXRodWIuY29tL0lEUEYvZXB1YjMtc2FtcGxlcy9yZWxlYXNlcy9kb3dubG9hZC8yMDIzMDcwNC9hY2Nlc3NpYmxlX2VwdWJfMy5lcHVi%2Fmanifest.json",
-    rendition: "Reflowable"
-  },
-  {
-    title: "Children Literature",
-    author: "Charles Madison Curry, Erle Elsworth Clippinger",
-    cover: "/images/ChildrensLiterature.png",
-    url: "/read/manifest/https%3A%2F%2Fpublication-server.readium.org%2Fwebpub%2FaHR0cHM6Ly9naXRodWIuY29tL0lEUEYvZXB1YjMtc2FtcGxlcy9yZWxlYXNlcy9kb3dubG9hZC8yMDIzMDcwNC9jaGlsZHJlbnMtbGl0ZXJhdHVyZS5lcHVi%2Fmanifest.json",
-    rendition: "Reflowable"
-  }
-];
+  const [primaryBook, ...supportingBooks] = books;
 
-const webPublications = [
-  {
-    title: "Readium CSS Implementers’ Documentation",
-    author: "Jiminy Panoz",
-    cover: "/images/readium-css.jpg",
-    url: "/read/readium-css",
-    rendition: "Web Publication"
-  }
-];
+  return (
+    <section className="mb-10 grid min-h-[420px] overflow-hidden rounded-lg border border-slate-200 bg-slate-950 shadow-2xl lg:grid-cols-[minmax(0,1fr)_minmax(330px,0.82fr)]">
+      <div className="flex min-w-0 flex-col justify-center p-6 text-white sm:p-10 lg:p-14">
+        <p className="mb-2 text-xs font-extrabold uppercase tracking-normal text-teal-200">Online ebook store</p>
+        <h1 className="mb-5 max-w-3xl text-5xl font-black leading-[0.95] tracking-normal text-white sm:text-6xl lg:text-7xl">Bookly eBooks</h1>
+        <p className="mb-7 max-w-xl text-base leading-7 text-slate-200 sm:text-lg">Discover curated classics, author picks, featured deals, and reader-ready EPUBs in one polished digital shelf.</p>
+        <div className="flex flex-wrap gap-3">
+          <a
+            className="inline-flex min-h-11 items-center justify-center rounded-lg bg-teal-200 px-5 font-extrabold text-slate-950 hover:bg-teal-100 focus-visible:outline-[3px] focus-visible:outline-offset-2 focus-visible:outline-teal-200"
+            href="#more-products"
+          >
+            Browse products
+          </a>
+          <Link
+            className="inline-flex min-h-11 items-center justify-center rounded-lg border border-white/30 px-5 font-extrabold text-white hover:bg-white/10 focus-visible:outline-[3px] focus-visible:outline-offset-2 focus-visible:outline-teal-200"
+            href={ primaryBook.productUrl }
+          >
+            View featured
+          </Link>
+        </div>
+      </div>
+      <div className="grid min-w-0 grid-cols-1 gap-3 p-4 sm:grid-cols-2 lg:grid-cols-[1fr_0.74fr] lg:grid-rows-2">
+        <Link
+          className="grid rounded-lg border border-white/15 bg-white/10 p-4 text-white backdrop-blur-xl transition hover:-translate-y-1 hover:border-teal-200/60 hover:shadow-xl focus-visible:outline-[3px] focus-visible:outline-offset-2 focus-visible:outline-teal-200 sm:col-span-2 lg:col-span-1 lg:row-span-2"
+          href={ primaryBook.productUrl }
+        >
+          <figure className="relative min-h-[240px] lg:min-h-[280px]">
+            <BookCover
+              src={ primaryBook.cover }
+              title={ primaryBook.title }
+              priority
+              sizes="(max-width: 1024px) 45vw, 300px"
+            />
+          </figure>
+          <div>
+            <p className="mb-1 text-xs font-extrabold uppercase tracking-normal text-teal-200">Featured pick</p>
+            <h2 className="mb-2 text-xl font-extrabold leading-tight text-white">{ primaryBook.title }</h2>
+            { primaryBook.subtitle && <p className="text-sm leading-6 text-slate-200">{ primaryBook.subtitle }</p> }
+          </div>
+        </Link>
+        { supportingBooks.slice(0, 2).map((book, index) => (
+          <Link
+            className="grid rounded-lg border border-white/15 bg-white/10 p-3 text-white backdrop-blur-xl transition hover:-translate-y-1 hover:border-teal-200/60 hover:shadow-xl focus-visible:outline-[3px] focus-visible:outline-offset-2 focus-visible:outline-teal-200"
+            href={ book.productUrl }
+            key={ `${ book.id }-${ index }` }
+          >
+            <figure className="relative min-h-36">
+              <BookCover
+                src={ book.cover }
+                title={ book.title }
+                sizes="160px"
+              />
+            </figure>
+            <span className="text-sm font-extrabold leading-snug">{ book.title }</span>
+          </Link>
+        )) }
+      </div>
+    </section>
+  );
+};
 
-const epub3samples = [
-  {
-    title: "ハルコさんの彼氏",
-    author: "Riko Kratsuka",
-    cover: "/images/Haruko.jpg",
-    url: "/read/haruko",
-    rendition: "Fixed-Layout EPUB"
-  },
-  {
-    title: "מפליגים בישראל",
-    author: "אורי עידן",
-    cover: "/images/israelSailing.jpg",
-    url: "/read/israel-sailing",
-    rendition: "Reflowable EPUB"
-  },
-  {
-    title: "日本語組版処理の要件（日本語版）",
-    author: "W3C® (MIT, ERCIM, Keio)",
-    cover: "/images/jlreq.png",
-    url: "/read/jlreq",
-    rendition: "Reflowable EPUB"
-  },
-  {
-    title: "草枕",
-    author: "夏目 漱石",
-    cover: "/images/Kusamakura.png",
-    url: "/read/kusamakura",
-    rendition: "Reflowable EPUB"
-  },
-  {
-    title: "السرطان من  للوقاية الصحيح الغذائي  النظام",
-    author: "دافيد  خيّاط لبروفيسورا",
-    cover: "/images/RegimeAnticancerArabic.jpg",
-    url: "/read/regime-anticancer-arabic",
-    rendition: "Reflowable EPUB"
-  }
-];
+const FeaturedBooks = ({ books }: { books: DisplayBook[] }) => {
+  if (books.length === 0) return null;
 
-const audiobooks = [
-  {
-    title: "Flatland",
-    author: "Edwin Abbott Abbott",
-    cover: "https://www.archive.org/download/LibrivoxCdCoverArt12/Flatland_1109.jpg",
-    url: "/read/flatland",
-    rendition: "Audiobook"
-  }
-]
+  return (
+    <section className="mb-10">
+      <SectionHeading title="Featured Deals" />
+      <div className="grid gap-4 lg:grid-cols-[minmax(0,1.35fr)_minmax(220px,0.82fr)_minmax(220px,0.82fr)]">
+        { books.map((book, index) => (
+          <Link
+            className="group grid min-h-48 overflow-hidden rounded-lg border border-slate-200 bg-white shadow-sm transition hover:-translate-y-1 hover:border-teal-200 hover:shadow-xl focus-visible:outline-[3px] focus-visible:outline-offset-2 focus-visible:outline-teal-700 sm:grid-cols-[120px_minmax(0,1fr)] lg:first:grid-cols-[158px_minmax(0,1fr)]"
+            href={ book.productUrl }
+            key={ `${ book.id }-${ index }` }
+          >
+            <figure
+              className="relative min-h-48"
+              style={{
+                background: `linear-gradient(135deg, color-mix(in srgb, ${ book.color } 24%, #ffffff), #f1f5f9)`
+              }}
+            >
+              <BookCover
+                src={ book.cover }
+                title={ book.title }
+                priority={ index === 0 }
+              />
+            </figure>
+            <div className="flex min-w-0 flex-col p-4">
+              <h3 className="mb-2 text-lg font-extrabold leading-tight tracking-normal text-slate-950 group-hover:text-teal-700">{ book.title }</h3>
+              { book.subtitle && <p className="mb-4 text-sm leading-6 text-slate-600">{ book.subtitle }</p> }
+              <BookMeta book={ book } />
+            </div>
+          </Link>
+        )) }
+      </div>
+    </section>
+  );
+};
+
+const BookSection = ({
+  section,
+  id
+}: {
+  section: DisplayBookSection;
+  id?: string;
+}) => (
+  <section
+    className="mb-10"
+    id={ id }
+  >
+    <SectionHeading
+      title={ section.title }
+      action={ (
+        <Link
+          className="text-sm font-extrabold text-teal-700 hover:text-teal-900"
+          href="#more-products"
+        >
+          View all
+        </Link>
+      ) }
+    />
+    <BookGrid books={ section.books } />
+  </section>
+);
 
 export default function Home() {
-  const [isManifestEnabled, setIsManifestEnabled] = useState<boolean>(true);
+  const { catalog, sections, isLoading, error } = useBooklyCatalog();
+  const { banners, categories, authors, bookSections, moreProducts } = catalog;
 
-  useEffect(() => {
-    const checkManifestRoute = async () => {
-      try {
-        const enabled = await isManifestRouteEnabled();
-        setIsManifestEnabled(enabled);
-      } catch (error) {
-        console.error("Error checking manifest route:", error);
-        setIsManifestEnabled(false);
-      }
-    };
-
-    checkManifestRoute();
-  }, []);
-  
   return (
-    <main id="home">
-      <header className="header">
-        <figure className="logo-container">
-          <Image 
-            src="/images/ReadiumLogo.png" 
-            alt="Readium Logo" 
-            width={ 60 }
-            height={ 60 }
-            priority
-          />
-        </figure>
-        <h1>Welcome to Readium Playground</h1>
-        <p className="subtitle">Reference implementation of <a href="https://github.com/edrlab/thorium-web">Thorium Web</a>, <a href="https://github.com/readium/web">Readium Web</a> and <a href="https://github.com/readium/css">Readium CSS</a>.</p>
-      </header>
+    <AppShell>
+      <SiteHeader />
 
-      <h2>Our selection</h2>
+      { isLoading && <StatusMessage>Loading Bookly catalog...</StatusMessage> }
+      { error && <StatusMessage tone="error">{ error }</StatusMessage> }
 
-      <PublicationGrid
-        publications={ [...books, ...webPublications, ...audiobooks] }
-        renderCover={ (publication) => (
-          <Image
-            src={ publication.cover }
-            alt=""
-            loading="lazy"
-            width={ 120 }
-            height={ 180 }
-          />
-        ) }
-      />
+      <HeroBanner books={ banners } />
 
-      <h2>EPUB3 Samples</h2>
-
-      <PublicationGrid
-        publications={ epub3samples }
-        renderCover={ (publication) => (
-          <Image
-            src={ publication.cover }
-            alt=""
-            loading="lazy"
-            width={ 120 }
-            height={ 180 }
-          />
-        ) }
-      />
-
-      { isManifestEnabled && (
-        <>
-        <div className="dev-books">
-          <p>In dev you can also use the <code>/manifest/</code> route to load any publication. For instance:</p>
-          
-          <PublicationGrid
-            publications={ onlineBooks }
-            renderCover={ (publication) => (
-              <Image
-                src={ publication.cover }
-                alt=""
-                loading="lazy"
-                width={ 120 }
-                height={ 180 }
-              />
-            ) }
-          />
+      <section
+        className="mb-10"
+        id="categories"
+      >
+        <SectionHeading
+          eyebrow="Browse shelves"
+          title="Popular Categories"
+        />
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
+          { categories.map((category) => (
+            <CategoryCard
+              category={ category }
+              key={ category.id }
+            />
+          )) }
         </div>
-        </>
+      </section>
+
+      { bookSections.slice(0, 4).map((section, index) => (
+        <BookSection
+          section={ section }
+          key={ section.id }
+          id={ index === 0 ? "trending" : undefined }
+        />
+      )) }
+
+      <FeaturedBooks books={ banners } />
+
+      <section
+        className="mb-10"
+        id="more-products"
+      >
+        <SectionHeading
+          eyebrow="Shop the library"
+          title="More Products"
+        />
+        <BookGrid books={ moreProducts } />
+      </section>
+
+      <section
+        className="mb-10"
+        id="authors"
+      >
+        <SectionHeading
+          eyebrow="Meet the writers"
+          title="Top Authors"
+        />
+        <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-7">
+          { authors.map((author) => (
+            <AuthorCard
+              author={ author }
+              key={ author.id }
+            />
+          )) }
+        </div>
+      </section>
+
+      { !isLoading && !error && sections.length === 0 && (
+        <EmptyState>No books are available right now.</EmptyState>
       ) }
-    </main>
+
+      <SiteFooter />
+    </AppShell>
   );
 }
+

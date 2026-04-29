@@ -1,7 +1,7 @@
 {
-  "name": "@readium/playground",
+  "name": "bookly-ebooks",
   "version": "1.4.0",
-  "description": "Play with Readium technologies in this reference deployment of Thorium Web",
+  "description": "A Bookly eBooks storefront powered by Readium.",
   "keywords": [
     "readium",
     "epub",
@@ -59,6 +59,7 @@
   "devDependencies": {
     "@eslint/eslintrc": "^3.3.4",
     "@svgr/webpack": "^8.1.0",
+    "@tailwindcss/postcss": "^4.2.4",
     "@types/css-modules": "^1.0.5",
     "@types/node": "^22.19.7",
     "@types/react": "^19.2.14",
@@ -67,6 +68,8 @@
     "esbuild-plugin-svgr": "^3.1.1",
     "eslint": "^9.39.2",
     "eslint-config-next": "16.1.6",
+    "postcss": "^8.5.12",
+    "tailwindcss": "^4.2.4",
     "typescript": "^5.9.3"
   }
 }
