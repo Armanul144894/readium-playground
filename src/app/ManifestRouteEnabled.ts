@@ -1,6 +1,9 @@
 "use server";
 
 export const isManifestRouteEnabled = async (): Promise<boolean> => {
-  return process.env.NODE_ENV === "development" || 
-         process.env.MANIFEST_ROUTE_FORCE_ENABLE === "true";
+  const explicitDisable =
+    process.env.MANIFEST_ROUTE_FORCE_ENABLE === "false" ||
+    process.env.MANIFEST_ROUTE_DISABLE === "true";
+
+  return !explicitDisable;
 };

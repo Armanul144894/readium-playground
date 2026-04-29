@@ -46,7 +46,9 @@ const nextConfig = {
   },
   async redirects() {
     const isProduction = process.env.NODE_ENV === "production";
-    const isManifestEnabled = !isProduction || process.env.MANIFEST_ROUTE_FORCE_ENABLE === "true";
+    const isManifestEnabled =
+      process.env.MANIFEST_ROUTE_FORCE_ENABLE !== "false" &&
+      process.env.MANIFEST_ROUTE_DISABLE !== "true";
 
     if (isProduction && !isManifestEnabled) {
       return [
