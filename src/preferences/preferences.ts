@@ -32,7 +32,7 @@ export const playgroundPreferences = createPreferences<CustomKeys>({
         href: "/",
         content: {
           type: "img",
-          src: "/images/ReadiumLogo.png"
+          src: "/images/bookly-logo.svg"
         }
       }
     },
