@@ -5,16 +5,11 @@ import { use, useMemo } from "react";
 import Image from "next/image";
 import Link from "next/link";
 
-import "@/app/home.css";
-
 import {
-  AppShell,
   AuthorCard,
   BookGrid,
   EmptyState,
   SectionHeading,
-  SiteFooter,
-  SiteHeader,
   StatusMessage
 } from "@/app/BooklyUi";
 import { useBooklyCatalog } from "@/app/useBooklyCatalog";
@@ -36,9 +31,7 @@ export default function AuthorProductsPage({ params }: Props) {
   const books = author ? catalog.booksByAuthorSlug.get(author.slug) ?? [] : [];
 
   return (
-    <AppShell>
-      <SiteHeader />
-
+    <>
       { isLoading && <StatusMessage>Loading author products...</StatusMessage> }
       { error && <StatusMessage tone="error">{ error }</StatusMessage> }
 
@@ -56,7 +49,7 @@ export default function AuthorProductsPage({ params }: Props) {
             />
           ) }
           <div>
-            <p className="mb-2 text-xs font-extrabold uppercase tracking-normal text-teal-700">Author wise products</p>
+            <p className="mb-2 text-xs font-extrabold uppercase tracking-normal text-orange-700">Author wise products</p>
             <h1 className="mb-3 text-4xl font-black leading-tight tracking-normal text-slate-950 sm:text-5xl">{ author.name }</h1>
             <p className="max-w-2xl text-base leading-7 text-slate-600">Browse Bookly eBooks written by this author.</p>
           </div>
@@ -74,7 +67,7 @@ export default function AuthorProductsPage({ params }: Props) {
             title={`${ author.name } eBooks`}
             action={ (
               <Link
-                className="text-sm font-extrabold text-teal-700 hover:text-teal-900"
+                className="text-sm font-extrabold text-orange-700 hover:text-orange-900"
                 href="/#authors"
               >
                 All authors
@@ -103,8 +96,6 @@ export default function AuthorProductsPage({ params }: Props) {
           )) }
         </div>
       </section>
-
-      <SiteFooter />
-    </AppShell>
+    </>
   );
 }

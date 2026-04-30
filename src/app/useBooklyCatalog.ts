@@ -6,12 +6,14 @@ import { isManifestRouteEnabled } from "./ManifestRouteEnabled";
 import {
   BooklySection,
   createBooklyCatalogModel,
-  fetchBooklySections
+  fetchBooklySections,
+  fetchDiscoverSections
 } from "./booklyCatalog";
 
 export const useBooklyCatalog = () => {
   const [isManifestEnabled, setIsManifestEnabled] = useState<boolean>(true);
   const [sections, setSections] = useState<BooklySection[]>([]);
+  const [discoverSections, setDiscoverSections] = useState<BooklySection[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -37,8 +39,23 @@ export const useBooklyCatalog = () => {
       setError(null);
 
       try {
-        const nextSections = await fetchBooklySections(controller.signal);
-        setSections(nextSections);
+        const [catalogResult, discoverResult] = await Promise.allSettled([
+          fetchBooklySections(controller.signal),
+          fetchDiscoverSections(controller.signal)
+        ]);
+
+        if (catalogResult.status === "rejected") {
+          throw catalogResult.reason;
+        }
+
+        setSections(catalogResult.value);
+
+        if (discoverResult.status === "fulfilled") {
+          setDiscoverSections(discoverResult.value);
+        } else {
+          console.error("Error loading Bookly discover data:", discoverResult.reason);
+          setDiscoverSections([]);
+        }
       } catch (error) {
         if (controller.signal.aborted) return;
 
@@ -59,9 +76,9 @@ export const useBooklyCatalog = () => {
   }, []);
 
   const catalog = useMemo(
-    () => createBooklyCatalogModel(sections, isManifestEnabled),
-    [sections, isManifestEnabled]
+    () => createBooklyCatalogModel(sections, isManifestEnabled, discoverSections),
+    [sections, isManifestEnabled, discoverSections]
   );
 
-  return { catalog, sections, isLoading, error, isManifestEnabled };
+  return { catalog, sections, discoverSections, isLoading, error, isManifestEnabled };
 };

@@ -4,16 +4,11 @@ import { use, useMemo } from "react";
 
 import Link from "next/link";
 
-import "@/app/home.css";
-
 import {
-  AppShell,
   BookGrid,
   CategoryCard,
   EmptyState,
   SectionHeading,
-  SiteFooter,
-  SiteHeader,
   StatusMessage
 } from "@/app/BooklyUi";
 import { useBooklyCatalog } from "@/app/useBooklyCatalog";
@@ -35,15 +30,13 @@ export default function CategoryProductsPage({ params }: Props) {
   const books = category ? catalog.booksByCategorySlug.get(category.slug) ?? [] : [];
 
   return (
-    <AppShell>
-      <SiteHeader />
-
+    <>
       { isLoading && <StatusMessage>Loading category products...</StatusMessage> }
       { error && <StatusMessage tone="error">{ error }</StatusMessage> }
 
       { category && (
         <section className="mb-10 rounded-lg border border-slate-200 bg-white p-6 shadow-xl sm:p-8">
-          <p className="mb-2 text-xs font-extrabold uppercase tracking-normal text-teal-700">Category wise products</p>
+          <p className="mb-2 text-xs font-extrabold uppercase tracking-normal text-orange-700">Category wise products</p>
           <h1 className="mb-3 text-4xl font-black leading-tight tracking-normal text-slate-950 sm:text-5xl">{ category.name }</h1>
           <p className="max-w-2xl text-base leading-7 text-slate-600">Browse all Bookly eBooks grouped under this category.</p>
         </section>
@@ -60,7 +53,7 @@ export default function CategoryProductsPage({ params }: Props) {
             title={`${ category.name } eBooks`}
             action={ (
               <Link
-                className="text-sm font-extrabold text-teal-700 hover:text-teal-900"
+                className="text-sm font-extrabold text-orange-700 hover:text-orange-900"
                 href="/#categories"
               >
                 All categories
@@ -89,8 +82,6 @@ export default function CategoryProductsPage({ params }: Props) {
           )) }
         </div>
       </section>
-
-      <SiteFooter />
-    </AppShell>
+    </>
   );
 }

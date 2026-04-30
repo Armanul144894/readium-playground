@@ -5,15 +5,10 @@ import { use, useMemo } from "react";
 import Image from "next/image";
 import Link from "next/link";
 
-import "@/app/home.css";
-
 import {
-  AppShell,
   BookMeta,
   EmptyState,
   SectionHeading,
-  SiteFooter,
-  SiteHeader,
   StatusMessage
 } from "@/app/BooklyUi";
 import { useBooklyCatalog } from "@/app/useBooklyCatalog";
@@ -33,9 +28,7 @@ export default function EbookProductPage({ params }: Props) {
   ), [catalog.moreProducts, productSlug]);
 
   return (
-    <AppShell>
-      <SiteHeader />
-
+    <>
       { isLoading && <StatusMessage>Loading eBook...</StatusMessage> }
       { error && <StatusMessage tone="error">{ error }</StatusMessage> }
 
@@ -63,7 +56,7 @@ export default function EbookProductPage({ params }: Props) {
             </figure>
 
             <div className="flex min-w-0 flex-col justify-center">
-              <p className="mb-2 text-xs font-extrabold uppercase tracking-normal text-teal-700">Bookly eBook</p>
+              <p className="mb-2 text-xs font-extrabold uppercase tracking-normal text-orange-700">Bookly eBook</p>
               <h1 className="mb-4 text-4xl font-black leading-tight tracking-normal text-slate-950 sm:text-5xl lg:text-6xl">{ book.title }</h1>
               { book.author && <p className="mb-4 text-lg font-bold text-slate-600">{ book.author }</p> }
               { book.subtitle && <p className="mb-5 max-w-2xl text-base leading-7 text-slate-600">{ book.subtitle }</p> }
@@ -71,14 +64,14 @@ export default function EbookProductPage({ params }: Props) {
               <div className="mt-6 flex flex-wrap gap-3">
                 { book.readerUrl && (
                   <a
-                    className="inline-flex min-h-11 items-center justify-center rounded-lg bg-teal-700 px-5 font-extrabold text-white hover:bg-teal-800 focus-visible:outline-[3px] focus-visible:outline-offset-2 focus-visible:outline-teal-700"
+                    className="inline-flex min-h-11 items-center justify-center rounded-lg bg-orange-600 px-5 font-extrabold text-white hover:bg-orange-700 focus-visible:outline-[3px] focus-visible:outline-offset-2 focus-visible:outline-orange-600"
                     href={ book.readerUrl }
                   >
                     Read eBook
                   </a>
                 ) }
                 <Link
-                  className="inline-flex min-h-11 items-center justify-center rounded-lg border border-slate-300 px-5 font-extrabold text-teal-700 hover:bg-teal-50 focus-visible:outline-[3px] focus-visible:outline-offset-2 focus-visible:outline-teal-700"
+                  className="inline-flex min-h-11 items-center justify-center rounded-lg border border-slate-300 px-5 font-extrabold text-orange-700 hover:bg-orange-50 focus-visible:outline-[3px] focus-visible:outline-offset-2 focus-visible:outline-orange-600"
                   href="/products"
                 >
                   Back to products
@@ -95,7 +88,7 @@ export default function EbookProductPage({ params }: Props) {
             <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6">
               { catalog.moreProducts.filter((item) => item.slug !== book.slug).slice(0, 6).map((item) => (
                 <Link
-                  className="rounded-lg border border-slate-200 bg-white p-3 text-sm font-extrabold text-slate-800 shadow-sm transition hover:-translate-y-1 hover:border-teal-200 hover:text-teal-700 hover:shadow-lg"
+                  className="rounded-lg border border-slate-200 bg-white p-3 text-sm font-extrabold text-slate-800 shadow-sm transition hover:-translate-y-1 hover:border-orange-200 hover:text-orange-700 hover:shadow-lg"
                   href={ item.productUrl }
                   key={ item.slug }
                 >
@@ -106,8 +99,6 @@ export default function EbookProductPage({ params }: Props) {
           </section>
         </>
       ) }
-
-      <SiteFooter />
-    </AppShell>
+    </>
   );
 }

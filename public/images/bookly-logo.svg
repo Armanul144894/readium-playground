@@ -1,9 +1,9 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" role="img" aria-labelledby="title">
   <title>Bookly eBooks</title>
-  <rect width="128" height="128" rx="28" fill="#0f766e"/>
-  <path d="M34 33c0-5 4-9 9-9h42c5 0 9 4 9 9v70c0 2-2 4-4 4H42c-4 0-8-3-8-8V33z" fill="#ecfeff"/>
-  <path d="M45 24h40c5 0 9 4 9 9v66c0-5-4-9-9-9H45c-5 0-9 4-9 9V33c0-5 4-9 9-9z" fill="#ccfbf1"/>
-  <path d="M50 43h28M50 56h22M50 69h30" stroke="#0f766e" stroke-width="7" stroke-linecap="round"/>
-  <path d="M85 33v67" stroke="#14b8a6" stroke-width="6" stroke-linecap="round"/>
-  <circle cx="90" cy="88" r="13" fill="#facc15"/>
+  <rect width="128" height="128" rx="28" fill="#ff9800"/>
+  <path d="M34 33c0-5 4-9 9-9h42c5 0 9 4 9 9v70c0 2-2 4-4 4H42c-4 0-8-3-8-8V33z" fill="#fff7ed"/>
+  <path d="M45 24h40c5 0 9 4 9 9v66c0-5-4-9-9-9H45c-5 0-9 4-9 9V33c0-5 4-9 9-9z" fill="#ffedd5"/>
+  <path d="M50 43h28M50 56h22M50 69h30" stroke="#ea580c" stroke-width="7" stroke-linecap="round"/>
+  <path d="M85 33v67" stroke="#c2410c" stroke-width="6" stroke-linecap="round"/>
+  <circle cx="90" cy="88" r="13" fill="#a855f7"/>
 </svg>

@@ -2,21 +2,16 @@
 
 import Link from "next/link";
 
-import "./home.css";
-
 import {
-  AppShell,
   AuthorCard,
   BookCard,
   BookCover,
   BookGrid,
   BookMeta,
   BookReadProgress,
-  CategoryCard,
   EmptyState,
+  PopularCategoryCard,
   SectionHeading,
-  SiteFooter,
-  SiteHeader,
   StatusMessage
 } from "./BooklyUi";
 import { DisplayBook, DisplayBookSection } from "./booklyCatalog";
@@ -30,18 +25,18 @@ const HeroBanner = ({ books }: { books: DisplayBook[] }) => {
   return (
     <section className="mb-10 grid min-h-[420px] overflow-hidden rounded-lg border border-slate-200 bg-slate-950 shadow-2xl lg:grid-cols-[minmax(0,1fr)_minmax(330px,0.82fr)]">
       <div className="flex min-w-0 flex-col justify-center p-6 text-white sm:p-10 lg:p-14">
-        <p className="mb-2 text-xs font-extrabold uppercase tracking-normal text-teal-200">Online ebook store</p>
+        <p className="mb-2 text-xs font-extrabold uppercase tracking-normal text-orange-200">Online ebook store</p>
         <h1 className="mb-5 max-w-3xl text-5xl font-black leading-[0.95] tracking-normal text-white sm:text-6xl lg:text-7xl">Bookly eBooks</h1>
         <p className="mb-7 max-w-xl text-base leading-7 text-slate-200 sm:text-lg">Discover curated classics, author picks, featured deals, and reader-ready EPUBs in one polished digital shelf.</p>
         <div className="flex flex-wrap gap-3">
           <Link
-            className="inline-flex min-h-11 items-center justify-center rounded-lg bg-teal-200 px-5 font-extrabold text-slate-950 hover:bg-teal-100 focus-visible:outline-[3px] focus-visible:outline-offset-2 focus-visible:outline-teal-200"
+            className="inline-flex min-h-11 items-center justify-center rounded-lg bg-orange-400 px-5 font-extrabold text-slate-950 hover:bg-orange-300 focus-visible:outline-[3px] focus-visible:outline-offset-2 focus-visible:outline-orange-300"
             href="/products"
           >
             Browse products
           </Link>
           <Link
-            className="inline-flex min-h-11 items-center justify-center rounded-lg border border-white/30 px-5 font-extrabold text-white hover:bg-white/10 focus-visible:outline-[3px] focus-visible:outline-offset-2 focus-visible:outline-teal-200"
+            className="inline-flex min-h-11 items-center justify-center rounded-lg border border-white/30 px-5 font-extrabold text-white hover:bg-white/10 focus-visible:outline-[3px] focus-visible:outline-offset-2 focus-visible:outline-orange-300"
             href={ primaryBook.productUrl }
           >
             View featured
@@ -50,7 +45,7 @@ const HeroBanner = ({ books }: { books: DisplayBook[] }) => {
       </div>
       <div className="grid min-w-0 grid-cols-1 gap-3 p-4 sm:grid-cols-2 lg:grid-cols-[1fr_0.74fr] lg:grid-rows-2">
         <Link
-          className="grid rounded-lg border border-white/15 bg-white/10 p-4 text-white backdrop-blur-xl transition hover:-translate-y-1 hover:border-teal-200/60 hover:shadow-xl focus-visible:outline-[3px] focus-visible:outline-offset-2 focus-visible:outline-teal-200 sm:col-span-2 lg:col-span-1 lg:row-span-2"
+          className="grid rounded-lg border border-white/15 bg-white/10 p-4 text-white backdrop-blur-xl transition hover:-translate-y-1 hover:border-orange-200/70 hover:shadow-xl focus-visible:outline-[3px] focus-visible:outline-offset-2 focus-visible:outline-orange-300 sm:col-span-2 lg:col-span-1 lg:row-span-2"
           href={ primaryBook.productUrl }
         >
           <figure className="relative min-h-[240px] lg:min-h-[280px]">
@@ -62,14 +57,14 @@ const HeroBanner = ({ books }: { books: DisplayBook[] }) => {
             />
           </figure>
           <div>
-            <p className="mb-1 text-xs font-extrabold uppercase tracking-normal text-teal-200">Featured pick</p>
+            <p className="mb-1 text-xs font-extrabold uppercase tracking-normal text-orange-200">Featured pick</p>
             <h2 className="mb-2 text-xl font-extrabold leading-tight text-white">{ primaryBook.title }</h2>
             { primaryBook.subtitle && <p className="text-sm leading-6 text-slate-200">{ primaryBook.subtitle }</p> }
           </div>
         </Link>
         { supportingBooks.slice(0, 2).map((book, index) => (
           <Link
-            className="grid rounded-lg border border-white/15 bg-white/10 p-3 text-white backdrop-blur-xl transition hover:-translate-y-1 hover:border-teal-200/60 hover:shadow-xl focus-visible:outline-[3px] focus-visible:outline-offset-2 focus-visible:outline-teal-200"
+            className="grid rounded-lg border border-white/15 bg-white/10 p-3 text-white backdrop-blur-xl transition hover:-translate-y-1 hover:border-orange-200/70 hover:shadow-xl focus-visible:outline-[3px] focus-visible:outline-offset-2 focus-visible:outline-orange-300"
             href={ book.productUrl }
             key={ `${ book.id }-${ index }` }
           >
@@ -97,7 +92,7 @@ const FeaturedBooks = ({ books }: { books: DisplayBook[] }) => {
       <div className="grid gap-4 lg:grid-cols-[minmax(0,1.35fr)_minmax(220px,0.82fr)_minmax(220px,0.82fr)]">
         { books.map((book, index) => (
           <Link
-            className="group grid min-h-48 overflow-hidden rounded-lg border border-slate-200 bg-white shadow-sm transition hover:-translate-y-1 hover:border-teal-200 hover:shadow-xl focus-visible:outline-[3px] focus-visible:outline-offset-2 focus-visible:outline-teal-700 sm:grid-cols-[120px_minmax(0,1fr)] lg:first:grid-cols-[158px_minmax(0,1fr)]"
+            className="group grid min-h-48 overflow-hidden rounded-lg border border-slate-200 bg-white shadow-sm transition hover:-translate-y-1 hover:border-orange-200 hover:shadow-xl focus-visible:outline-[3px] focus-visible:outline-offset-2 focus-visible:outline-orange-600 sm:grid-cols-[120px_minmax(0,1fr)] lg:first:grid-cols-[158px_minmax(0,1fr)]"
             href={ book.productUrl }
             key={ `${ book.id }-${ index }` }
           >
@@ -114,7 +109,7 @@ const FeaturedBooks = ({ books }: { books: DisplayBook[] }) => {
               />
             </figure>
             <div className="flex min-w-0 flex-col p-4">
-              <h3 className="mb-2 text-lg font-extrabold leading-tight tracking-normal text-slate-950 group-hover:text-teal-700">{ book.title }</h3>
+              <h3 className="mb-2 text-lg font-extrabold leading-tight tracking-normal text-slate-950 group-hover:text-orange-700">{ book.title }</h3>
               { book.subtitle && <p className="mb-4 text-sm leading-6 text-slate-600">{ book.subtitle }</p> }
               <div className="mt-auto">
                 <BookReadProgress book={ book } />
@@ -143,7 +138,7 @@ const BookSection = ({
       title={ section.title }
       action={ (
         <Link
-          className="text-sm font-extrabold text-teal-700 hover:text-teal-900"
+          className="text-sm font-extrabold text-orange-700 hover:text-orange-900"
           href="/products"
         >
           View all
@@ -156,12 +151,10 @@ const BookSection = ({
 
 export default function Home() {
   const { catalog, sections, isLoading, error } = useBooklyCatalog();
-  const { banners, categories, authors, bookSections, moreProducts } = catalog;
+  const { banners, popularCategories, discoverBookSections, authors, bookSections, moreProducts } = catalog;
 
   return (
-    <AppShell>
-      <SiteHeader />
-
+    <>
       { isLoading && <StatusMessage>Loading Bookly catalog...</StatusMessage> }
       { error && <StatusMessage tone="error">{ error }</StatusMessage> }
 
@@ -175,9 +168,9 @@ export default function Home() {
           eyebrow="Browse shelves"
           title="Popular Categories"
         />
-        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
-          { categories.map((category) => (
-            <CategoryCard
+        <div className="grid grid-cols-2 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
+          { popularCategories.map((category) => (
+            <PopularCategoryCard
               category={ category }
               key={ category.id }
             />
@@ -185,13 +178,20 @@ export default function Home() {
         </div>
       </section>
 
-      { bookSections.slice(0, 4).map((section, index) => (
+      { discoverBookSections.map((section) => (
+        <BookSection
+          section={ section }
+          key={ section.id }
+        />
+      )) }
+
+      {/* { bookSections.slice(0, 4).map((section, index) => (
         <BookSection
           section={ section }
           key={ section.id }
           id={ index === 0 ? "trending" : undefined }
         />
-      )) }
+      )) } */}
 
       <FeaturedBooks books={ banners } />
 
@@ -204,7 +204,7 @@ export default function Home() {
           title="More Products"
           action={ (
             <Link
-              className="text-sm font-extrabold text-teal-700 hover:text-teal-900"
+              className="text-sm font-extrabold text-orange-700 hover:text-orange-900"
               href="/products"
             >
               All products
@@ -235,9 +235,6 @@ export default function Home() {
       { !isLoading && !error && sections.length === 0 && (
         <EmptyState>No books are available right now.</EmptyState>
       ) }
-
-      <SiteFooter />
-    </AppShell>
+    </>
   );
 }
-

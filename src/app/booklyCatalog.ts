@@ -2,6 +2,9 @@ import type { Route } from "next";
 
 export const EBOOKS_API_URL = "https://mh15-cdn.b-cdn.net/Bookly/ebooks.json";
 export const PROXIED_EBOOKS_API_URL = `/api/proxy?url=${ encodeURIComponent(EBOOKS_API_URL) }`;
+export const DISCOVER_API_URL = "https://mh15-cdn.b-cdn.net/Bookly/discover.json";
+export const PROXIED_DISCOVER_API_URL = `/api/proxy?url=${ encodeURIComponent(DISCOVER_API_URL) }`;
+export const BOOK_SEARCH_API_URL = "https://book-search-tniii.bunny.run/";
 export const PUBLICATION_SERVER_URL = "https://publication-server.readium.org/webpub";
 
 const KNOWN_EPUB_PATHS_BY_ID: Record<string, string> = {
@@ -51,6 +54,7 @@ export type BooklyBook = {
 export type BooklyCategory = {
   id?: string;
   name?: LocalizedText;
+  sort_name?: LocalizedText;
   icon?: string;
   color?: string;
 };
@@ -73,6 +77,25 @@ export type BooklySection = {
 type BooklyResponse = {
   success?: boolean;
   data?: BooklySection[];
+};
+
+type BookSearchType = "author" | "book";
+
+type BookSearchAuthorValue = LocalizedText | BooklyAuthor;
+
+type BookSearchItem = {
+  id?: string | number;
+  name?: LocalizedText;
+  imagePath?: string;
+  imageUrl?: string;
+  author?: BookSearchAuthorValue;
+  searchType?: string;
+};
+
+type BookSearchResponse = {
+  success?: boolean;
+  query?: string;
+  data?: BookSearchItem[];
 };
 
 export type DisplayBook = {
@@ -115,9 +138,21 @@ export type DisplayBookSection = {
   books: DisplayBook[];
 };
 
+export type DisplaySearchResult = {
+  id: string;
+  slug: string;
+  type: BookSearchType;
+  title: string;
+  subtitle?: string;
+  image?: string;
+  href: Route;
+};
+
 export type BooklyCatalogModel = {
   banners: DisplayBook[];
   categories: DisplayCategory[];
+  popularCategories: DisplayCategory[];
+  discoverBookSections: DisplayBookSection[];
   authors: DisplayProfile[];
   bookSections: DisplayBookSection[];
   moreProducts: DisplayBook[];
@@ -162,6 +197,36 @@ export const parseBooklyResponse = (payload: unknown): BooklySection[] => {
 
   return response.data.filter((section): section is BooklySection => (
     isRecord(section) && Array.isArray(section.items)
+  ));
+};
+
+const isBookSearchType = (value?: string): value is BookSearchType => (
+  value === "author" || value === "book"
+);
+
+const getSearchAuthorName = (value?: BookSearchAuthorValue): string => {
+  if (!value) return "";
+
+  if (isRecord(value) && "name" in value) {
+    return getLocalizedText((value as BooklyAuthor).name);
+  }
+
+  return getLocalizedText(value as LocalizedText);
+};
+
+export const parseBookSearchResponse = (payload: unknown): BookSearchItem[] => {
+  if (!isRecord(payload)) {
+    throw new Error("The book search API returned an unexpected response.");
+  }
+
+  const response = payload as BookSearchResponse;
+
+  if (response.success === false || !Array.isArray(response.data)) {
+    throw new Error("The book search API did not return usable results.");
+  }
+
+  return response.data.filter((item): item is BookSearchItem => (
+    isRecord(item) && isBookSearchType(item.searchType) && isRecord(item.name)
   ));
 };
 
@@ -260,6 +325,12 @@ const getBookUrl = (
 
 const toProductRoute = (slug: string): Route => `/ebooks/${ encodeURIComponent(slug) }` as Route;
 
+const toSearchResultRoute = (type: BookSearchType, key: string): Route => (
+  type === "author"
+    ? `/authors/${ encodeURIComponent(key) }`
+    : `/ebooks/${ encodeURIComponent(key) }`
+) as Route;
+
 const toDisplayBook = (
   book: BooklyBook,
   epubPathsById: Map<string, string>,
@@ -288,6 +359,26 @@ const toDisplayBook = (
     rating: book.rating,
     price: book.price,
     discount: book.discount
+  };
+};
+
+const toDisplaySearchResult = (item: BookSearchItem): DisplaySearchResult | null => {
+  if (!isBookSearchType(item.searchType)) return null;
+
+  const title = getLocalizedText(item.name);
+  if (!title) return null;
+
+  const slug = slugify(title);
+  const routeKey = item.id === undefined || item.id === null ? slug : String(item.id);
+
+  return {
+    id: `${ item.searchType }-${ routeKey }`,
+    slug,
+    type: item.searchType,
+    title,
+    subtitle: item.searchType === "book" ? getSearchAuthorName(item.author) || undefined : undefined,
+    image: item.searchType === "author" ? item.imageUrl : item.imagePath,
+    href: toSearchResultRoute(item.searchType, routeKey)
   };
 };
 
@@ -347,20 +438,8 @@ const findAuthorSlugForBook = (authorName: string | undefined, authors: DisplayP
   return tokenMatch?.slug;
 };
 
-export const createBooklyCatalogModel = (
-  sections: BooklySection[],
-  isManifestEnabled: boolean
-): BooklyCatalogModel => {
-  const epubPathsById = createEpubPathMap(sections);
-
-  const banners = sections
-    .find((section) => section.type === "banner_list")
-    ?.items
-    ?.filter(isBookItem)
-    .map((item) => toDisplayBook(item, epubPathsById, isManifestEnabled))
-    .filter((item): item is DisplayBook => item !== null) ?? [];
-
-  const categories = sections
+const createDisplayCategories = (sections: BooklySection[]): DisplayCategory[] => (
+  sections
     .find((section) => section.type === "book_category_list")
     ?.items
     ?.filter(isCategoryItem)
@@ -378,7 +457,49 @@ export const createBooklyCatalogModel = (
         href: `/categories/${ encodeURIComponent(slug) }` as Route
       };
     })
-    .filter((item) => item.name) ?? [];
+    .filter((item) => item.name) ?? []
+);
+
+const createDiscoverBookSections = (
+  sections: BooklySection[],
+  epubPathsById: Map<string, string>,
+  isManifestEnabled: boolean
+): DisplayBookSection[] => (
+  sections
+    .filter((section) => section.type !== "book_category_list")
+    .filter((section) => section.type?.includes("book_list") || section.items?.some(isBookItem))
+    .map((section, index) => {
+      const books = section.items
+        ?.filter(isBookItem)
+        .map((item) => toDisplayBook(item, epubPathsById, isManifestEnabled))
+        .filter((item): item is DisplayBook => item !== null) ?? [];
+
+      return {
+        id: `discover-${ section.type ?? "book-section" }-${ section.id ?? index }`,
+        title: getLocalizedText(section.name),
+        books
+      };
+    })
+    .filter((section) => section.title && section.books.length > 0)
+);
+
+export const createBooklyCatalogModel = (
+  sections: BooklySection[],
+  isManifestEnabled: boolean,
+  discoverSections: BooklySection[] = []
+): BooklyCatalogModel => {
+  const epubPathsById = createEpubPathMap([...sections, ...discoverSections]);
+
+  const banners = sections
+    .find((section) => section.type === "banner_list")
+    ?.items
+    ?.filter(isBookItem)
+    .map((item) => toDisplayBook(item, epubPathsById, isManifestEnabled))
+    .filter((item): item is DisplayBook => item !== null) ?? [];
+
+  const categories = createDisplayCategories(sections);
+  const discoverCategories = createDisplayCategories(discoverSections);
+  const popularCategories = discoverCategories.length > 0 ? discoverCategories : categories;
 
   const authors = sections
     .find((section) => section.type === "author_list")
@@ -434,9 +555,25 @@ export const createBooklyCatalogModel = (
     })
     .filter((section) => section.title && section.books.length > 0);
 
-  const moreProducts = uniqueBooks([...banners, ...bookSections.flatMap((section) => section.books)]);
+  const discoverBookSections = createDiscoverBookSections(discoverSections, epubPathsById, isManifestEnabled);
 
-  return { banners, categories, authors, bookSections, moreProducts, booksByCategorySlug, booksByAuthorSlug };
+  const moreProducts = uniqueBooks([
+    ...banners,
+    ...bookSections.flatMap((section) => section.books),
+    ...discoverBookSections.flatMap((section) => section.books)
+  ]);
+
+  return {
+    banners,
+    categories,
+    popularCategories,
+    discoverBookSections,
+    authors,
+    bookSections,
+    moreProducts,
+    booksByCategorySlug,
+    booksByAuthorSlug
+  };
 };
 
 export const fetchBooklySections = async (signal?: AbortSignal): Promise<BooklySection[]> => {
@@ -449,4 +586,43 @@ export const fetchBooklySections = async (signal?: AbortSignal): Promise<BooklyS
   const payload = await response.json();
 
   return parseBooklyResponse(payload);
+};
+
+export const fetchDiscoverSections = async (signal?: AbortSignal): Promise<BooklySection[]> => {
+  const response = await fetch(PROXIED_DISCOVER_API_URL, { signal });
+
+  if (!response.ok) {
+    throw new Error(`The discover API responded with ${ response.status }.`);
+  }
+
+  const payload = await response.json();
+
+  return parseBooklyResponse(payload);
+};
+
+export const createBookSearchUrl = (query: string): string => {
+  const searchUrl = new URL(BOOK_SEARCH_API_URL);
+  searchUrl.searchParams.set("q", query);
+
+  return `/api/proxy?url=${ encodeURIComponent(searchUrl.toString()) }`;
+};
+
+export const fetchBookSearchResults = async (
+  query: string,
+  signal?: AbortSignal
+): Promise<DisplaySearchResult[]> => {
+  const trimmedQuery = query.trim();
+  if (!trimmedQuery) return [];
+
+  const response = await fetch(createBookSearchUrl(trimmedQuery), { signal });
+
+  if (!response.ok) {
+    throw new Error(`The book search API responded with ${ response.status }.`);
+  }
+
+  const payload = await response.json();
+
+  return parseBookSearchResponse(payload)
+    .map(toDisplaySearchResult)
+    .filter((item): item is DisplaySearchResult => item !== null);
 };
