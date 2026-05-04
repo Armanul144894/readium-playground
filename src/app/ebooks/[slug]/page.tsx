@@ -70,6 +70,7 @@ export default function EbookProductPage({ params }: Props) {
                     Read eBook
                   </a>
                 ) }
+                
                 <Link
                   className="inline-flex min-h-11 items-center justify-center rounded-lg border border-slate-300 px-5 font-extrabold text-orange-700 hover:bg-orange-50 focus-visible:outline-[3px] focus-visible:outline-offset-2 focus-visible:outline-orange-600"
                   href="/products"

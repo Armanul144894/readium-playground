@@ -1,0 +1,4 @@
+overrides:
+  navigator: link:../../../Users/TCL Software Dept/AppData/Local/pnpm/global/5/node_modules/@readium/navigator
+  navigator-html-injectables: link:../../../Users/TCL Software Dept/AppData/Local/pnpm/global/5/node_modules/@readium/navigator-html-injectables
+  shared: link:../../../Users/TCL Software Dept/AppData/Local/pnpm/global/5/node_modules/@readium/shared
