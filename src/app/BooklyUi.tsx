@@ -115,6 +115,7 @@ export const SiteHeader = () => (
   </>
 );
 
+
 export const SiteFooter = () => (
   <footer className="mt-12 bg-slate-950 text-white">
     <div className="mx-auto w-full max-w-[1400px] px-4 sm:px-6 lg:px-8">
