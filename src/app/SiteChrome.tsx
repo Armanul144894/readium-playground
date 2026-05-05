@@ -20,7 +20,9 @@ export default function SiteChrome({ children }: { children: ReactNode }) {
   return (
     <AppShell>
       <SiteHeader />
-      { children }
+      <div className="mx-auto w-full max-w-[1400px] px-4 sm:px-6 lg:px-8">
+        { children }
+      </div>
       <SiteFooter />
     </AppShell>
   );

@@ -36,7 +36,7 @@ export default function AuthorProductsPage({ params }: Props) {
       { error && <StatusMessage tone="error">{ error }</StatusMessage> }
 
       { author && (
-        <section className="mb-10 grid gap-6 rounded-lg border border-slate-200 bg-white p-6 shadow-xl sm:p-8 md:grid-cols-[auto_minmax(0,1fr)] md:items-center">
+        <section className="mb-10 grid gap-6 border-b border-slate-200 pb-7 md:grid-cols-[auto_minmax(0,1fr)] md:items-center">
           { author.imageUrl && (
             <Image
               src={ author.imageUrl }
@@ -49,9 +49,9 @@ export default function AuthorProductsPage({ params }: Props) {
             />
           ) }
           <div>
-            <p className="mb-2 text-xs font-extrabold uppercase tracking-normal text-orange-700">Author wise products</p>
+            <p className="mb-2 text-xs font-black uppercase tracking-normal text-red-700">Author wise products</p>
             <h1 className="mb-3 text-4xl font-black leading-tight tracking-normal text-slate-950 sm:text-5xl">{ author.name }</h1>
-            <p className="max-w-2xl text-base leading-7 text-slate-600">Browse Bookly eBooks written by this author.</p>
+            <p className="max-w-2xl text-base font-semibold leading-7 text-slate-600">Browse Bookly eBooks written by this author.</p>
           </div>
         </section>
       ) }
@@ -67,7 +67,7 @@ export default function AuthorProductsPage({ params }: Props) {
             title={`${ author.name } eBooks`}
             action={ (
               <Link
-                className="text-sm font-extrabold text-orange-700 hover:text-orange-900"
+                className="text-sm font-black text-red-700 hover:text-red-900"
                 href="/#authors"
               >
                 All authors

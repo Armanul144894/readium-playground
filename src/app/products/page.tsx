@@ -18,10 +18,10 @@ export default function ProductsPage() {
       { isLoading && <StatusMessage>Loading products...</StatusMessage> }
       { error && <StatusMessage tone="error">{ error }</StatusMessage> }
 
-      <section className="mb-10 rounded-lg border border-slate-200 bg-white p-6 shadow-xl sm:p-8">
-        <p className="mb-2 text-xs font-extrabold uppercase tracking-normal text-orange-700">All products</p>
+      <section className="mb-10 border-b border-slate-200 pb-7">
+        <p className="mb-2 text-xs font-black uppercase tracking-normal text-red-700">All products</p>
         <h1 className="mb-3 text-4xl font-black leading-tight tracking-normal text-slate-950 sm:text-5xl">Bookly eBooks Products</h1>
-        <p className="max-w-2xl text-base leading-7 text-slate-600">Browse every available Bookly eBook in one responsive product catalog.</p>
+        <p className="max-w-2xl text-base font-semibold leading-7 text-slate-600">Browse every available Bookly eBook in one responsive product catalog.</p>
       </section>
 
       <section className="mb-10">

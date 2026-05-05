@@ -18,66 +18,165 @@ import { useBookSearch } from "./useBookSearch";
 
 const homeHref = "/" as const;
 
+const headerCategoryLinks: Array<{ label: string; href: Route }> = [
+  { label: "Novel", href: "/categories/novel" as Route },
+  { label: "Stories", href: "/categories/stories" as Route },
+  { label: "Poetry", href: "/categories/poetry" as Route },
+  { label: "Drama", href: "/categories/drama" as Route },
+  { label: "Children", href: "/categories/children-and-young" as Route },
+  { label: "Essays", href: "/categories/essays" as Route },
+  { label: "Classic Literature", href: "/categories/classic-literature" as Route }
+];
+
 export const pageBackground: CSSProperties = {
   background:
-    "radial-gradient(circle at top left, rgba(255, 152, 0, 0.2), transparent 34rem), linear-gradient(180deg, #fff8ed 0, #f7f3ec 520px)"
+    "linear-gradient(180deg, #f8fafc 0, #f6f8f3 430px, #ffffff 100%)"
 };
 
 export const AppShell = ({ children }: { children: ReactNode }) => (
   <main
-    className="min-h-dvh bg-slate-100 px-4 py-5 text-slate-900 sm:px-6 lg:px-8"
+    className="min-h-dvh bg-slate-50 text-slate-900"
     style={ pageBackground }
   >
-    <div className="mx-auto w-full max-w-[1400px]">
-      { children }
-    </div>
+    { children }
   </main>
 );
 
 export const SiteHeader = () => (
-  <header className="sticky top-0 z-20 mb-6 grid min-h-16 gap-3 border-b border-slate-200/80 bg-white/85 py-3 backdrop-blur-xl md:grid-cols-[auto_minmax(260px,430px)_auto] md:items-center">
-    <Link
-      className="inline-flex items-center gap-3 text-lg font-extrabold tracking-normal text-slate-950"
-      href={ homeHref }
-      aria-label="Bookly eBooks home"
-    >
-      <Image
-        src="/images/bookly_512.png"
-        alt=""
-        width={ 42 }
-        height={ 42 }
-        priority
-        className="h-11 w-11 rounded-xl shadow-sm"
-      />
-      <span>Bookly eBooks</span>
-    </Link>
-    <BookSearchBox />
-    <nav
-      className="flex flex-wrap items-center gap-2 text-sm font-bold text-slate-600 md:justify-self-end"
-      aria-label="Primary navigation"
-    >
-      <Link className="rounded-lg px-3 py-2 hover:bg-orange-50 hover:text-orange-700 focus-visible:outline-[3px] focus-visible:outline-offset-2 focus-visible:outline-orange-600" href="/#categories">Categories</Link>
-      <Link className="rounded-lg px-3 py-2 hover:bg-orange-50 hover:text-orange-700 focus-visible:outline-[3px] focus-visible:outline-offset-2 focus-visible:outline-orange-600" href="/#authors">Authors</Link>
-      <Link className="rounded-lg px-3 py-2 hover:bg-orange-50 hover:text-orange-700 focus-visible:outline-[3px] focus-visible:outline-offset-2 focus-visible:outline-orange-600" href="/products">Products</Link>
-    </nav>
+  <header className="sticky top-0 z-20 mb-6 bg-white/95 shadow-sm backdrop-blur-xl">
+    <div className="border-b border-slate-200">
+      <div className="mx-auto flex min-h-9 w-full max-w-[1400px] flex-wrap items-center justify-between gap-2 px-4 py-2 text-xs font-bold text-slate-600 sm:px-6 lg:px-8">
+        <div className="flex flex-wrap items-center gap-3">
+          <span>info@ebsbd.com</span>
+          <span>+880 1914457857</span>
+        </div>
+        <div className="flex items-center gap-3">
+          <Link className="text-red-700 hover:text-red-900 focus-visible:outline-[3px] focus-visible:outline-offset-2 focus-visible:outline-red-600" href="/products">Subscription</Link>
+          <span className="text-slate-400">Cart 0</span>
+        </div>
+      </div>
+    </div>
+
+    <div className="mx-auto grid w-full max-w-[1400px] gap-4 px-4 py-4 md:grid-cols-[auto_minmax(280px,1fr)_auto] md:items-center sm:px-6 lg:px-8">
+      <Link
+        className="inline-flex items-center gap-3 text-lg font-black tracking-normal text-slate-950"
+        href={ homeHref }
+        aria-label="Bookly eBooks home"
+      >
+        <Image
+          src="/images/bookly_512.png"
+          alt=""
+          width={ 44 }
+          height={ 44 }
+          priority
+          className="h-11 w-11 rounded-lg shadow-sm"
+        />
+        <span>
+          <span className="block leading-tight">Bookly</span>
+          <span className="block text-[0.68rem] font-extrabold uppercase tracking-normal text-red-700">Online bookshop</span>
+        </span>
+      </Link>
+      <BookSearchBox />
+      <nav
+        className="flex flex-wrap items-center gap-2 text-sm font-extrabold text-slate-700 md:justify-self-end"
+        aria-label="Primary navigation"
+      >
+        <Link className="rounded-lg px-3 py-2 hover:bg-red-50 hover:text-red-700 focus-visible:outline-[3px] focus-visible:outline-offset-2 focus-visible:outline-red-600" href="/#authors">Authors</Link>
+        <Link className="rounded-lg px-3 py-2 hover:bg-red-50 hover:text-red-700 focus-visible:outline-[3px] focus-visible:outline-offset-2 focus-visible:outline-red-600" href="/products">Products</Link>
+        <Link className="rounded-lg bg-slate-950 px-3 py-2 text-white hover:bg-red-700 focus-visible:outline-[3px] focus-visible:outline-offset-2 focus-visible:outline-red-600" href="/products">Shop now</Link>
+      </nav>
+    </div>
+
+    <div className="border-t border-slate-200">
+      <nav
+        className="mx-auto flex min-h-11 w-full max-w-[1400px] items-center gap-2 overflow-x-auto px-4 py-2 text-sm font-extrabold text-slate-700 sm:px-6 lg:px-8"
+        aria-label="Category navigation"
+      >
+        <Link
+          className="shrink-0 rounded-lg bg-red-700 px-3 py-2 text-white hover:bg-red-800 focus-visible:outline-[3px] focus-visible:outline-offset-2 focus-visible:outline-red-600"
+          href="/#categories"
+        >
+          Browse categories
+        </Link>
+        { headerCategoryLinks.map((item) => (
+          <Link
+            className="shrink-0 rounded-lg px-3 py-2 hover:bg-slate-100 hover:text-red-700 focus-visible:outline-[3px] focus-visible:outline-offset-2 focus-visible:outline-red-600"
+            href={ item.href }
+            key={ item.label }
+          >
+            { item.label }
+          </Link>
+        )) }
+      </nav>
+    </div>
   </header>
 );
 
 export const SiteFooter = () => (
-  <footer className="mt-8 grid gap-5 border-t border-slate-200 py-8 md:grid-cols-[minmax(0,1fr)_auto] md:items-center">
-    <div>
-      <h2 className="mb-2 text-lg font-extrabold text-slate-950">Bookly eBooks</h2>
-      <p className="max-w-xl text-sm leading-6 text-slate-600">Curated digital books, clean discovery, and a reader-first browsing experience.</p>
+  <footer className="mt-12 bg-slate-950 text-white">
+    <div className="mx-auto w-full max-w-[1400px] px-4 sm:px-6 lg:px-8">
+      <div className="grid gap-8 py-10 md:grid-cols-2 lg:grid-cols-[minmax(0,1.25fr)_repeat(3,minmax(150px,0.5fr))]">
+        <div>
+          <Link
+            className="mb-4 inline-flex items-center gap-3 text-lg font-black text-white"
+            href={ homeHref }
+            aria-label="Bookly eBooks home"
+          >
+            <Image
+              src="/images/bookly_512.png"
+              alt=""
+              width={ 42 }
+              height={ 42 }
+              className="h-10 w-10 rounded-lg"
+            />
+            <span>
+              <span className="block leading-tight">Bookly</span>
+              <span className="block text-[0.68rem] font-extrabold uppercase tracking-normal text-red-300">Online bookshop</span>
+            </span>
+          </Link>
+          <p className="max-w-md text-sm font-semibold leading-6 text-slate-300">
+            Bengali classics, curated shelves, author collections, and digital book discovery in one clean storefront.
+          </p>
+        </div>
+
+        <div>
+          <h2 className="mb-3 text-sm font-black uppercase tracking-normal text-white">Browse</h2>
+          <nav className="grid gap-2 text-sm font-semibold text-slate-300" aria-label="Footer browse navigation">
+            <Link className="hover:text-red-300" href={ homeHref }>Home</Link>
+            <Link className="hover:text-red-300" href="/products">Products</Link>
+            <Link className="hover:text-red-300" href="/#authors">Authors</Link>
+            <Link className="hover:text-red-300" href="/search">Search</Link>
+          </nav>
+        </div>
+
+        <div>
+          <h2 className="mb-3 text-sm font-black uppercase tracking-normal text-white">Categories</h2>
+          <nav className="grid gap-2 text-sm font-semibold text-slate-300" aria-label="Footer category navigation">
+            { headerCategoryLinks.slice(0, 5).map((item) => (
+              <Link className="hover:text-red-300" href={ item.href } key={ item.label }>
+                { item.label }
+              </Link>
+            )) }
+          </nav>
+        </div>
+
+        <div>
+          <h2 className="mb-3 text-sm font-black uppercase tracking-normal text-white">Contact</h2>
+          <div className="grid gap-2 text-sm font-semibold text-slate-300">
+            <span>info@ebsbd.com</span>
+            <span>+880 1914457857</span>
+            <Link className="mt-2 inline-flex min-h-10 w-fit items-center justify-center rounded-lg bg-red-600 px-4 text-sm font-black text-white hover:bg-red-500" href="/products">
+              Shop now
+            </Link>
+          </div>
+        </div>
+      </div>
+
+      <div className="flex flex-col gap-3 border-t border-white/10 py-5 text-xs font-bold text-slate-400 sm:flex-row sm:items-center sm:justify-between">
+        <span>Copyright 2026 Bookly eBooks. All rights reserved.</span>
+        <span>Built for fast digital reading and clean discovery.</span>
+      </div>
     </div>
-    <nav
-      className="flex flex-wrap gap-3 text-sm font-bold text-slate-600"
-      aria-label="Footer navigation"
-    >
-      <Link className="rounded-lg px-2 py-1 hover:bg-orange-50 hover:text-orange-700" href="/#categories">Categories</Link>
-      <Link className="rounded-lg px-2 py-1 hover:bg-orange-50 hover:text-orange-700" href="/#authors">Authors</Link>
-      <Link className="rounded-lg px-2 py-1 hover:bg-orange-50 hover:text-orange-700" href="/products">Products</Link>
-      <Link className="rounded-lg px-2 py-1 hover:bg-orange-50 hover:text-orange-700" href={ homeHref }>Home</Link>
-    </nav>
   </footer>
 );
 
@@ -107,7 +206,7 @@ const BookSearchBox = () => {
         <input
           aria-controls={ isOpen ? resultsId : undefined }
           autoComplete="off"
-          className="h-11 w-full rounded-lg border border-slate-300 bg-white px-3 pr-24 text-sm font-semibold text-slate-900 shadow-sm outline-none transition placeholder:text-slate-500 focus:border-orange-500 focus:ring-4 focus:ring-orange-100"
+          className="h-12 w-full rounded-lg border border-slate-300 bg-white px-4 pr-28 text-sm font-semibold text-slate-900 shadow-sm outline-none transition placeholder:text-slate-500 focus:border-red-500 focus:ring-4 focus:ring-red-100"
           id={ inputId }
           name="q"
           onBlur={ () => window.setTimeout(() => setIsFocused(false), 140) }
@@ -118,7 +217,7 @@ const BookSearchBox = () => {
           value={ query }
         />
         <button
-          className="absolute right-1.5 top-1/2 inline-flex h-8 -translate-y-1/2 items-center justify-center rounded-md bg-slate-950 px-3 text-xs font-extrabold text-white transition hover:bg-orange-600 focus-visible:outline-[3px] focus-visible:outline-offset-2 focus-visible:outline-orange-600 disabled:bg-slate-200 disabled:text-slate-500"
+          className="absolute right-1.5 top-1/2 inline-flex h-9 -translate-y-1/2 items-center justify-center rounded-md bg-red-700 px-4 text-xs font-extrabold text-white transition hover:bg-red-800 focus-visible:outline-[3px] focus-visible:outline-offset-2 focus-visible:outline-red-600 disabled:bg-slate-200 disabled:text-slate-500"
           disabled={ !hasQuery }
           type="submit"
         >
@@ -144,7 +243,7 @@ const BookSearchBox = () => {
                 results={ results }
               />
               <Link
-                className="mt-2 flex min-h-10 items-center justify-center rounded-lg border border-slate-200 bg-slate-50 px-3 text-sm font-extrabold text-orange-700 hover:bg-orange-50 hover:text-orange-900 focus-visible:outline-[3px] focus-visible:outline-offset-2 focus-visible:outline-orange-600"
+                className="mt-2 flex min-h-10 items-center justify-center rounded-lg border border-slate-200 bg-slate-50 px-3 text-sm font-extrabold text-red-700 hover:bg-red-50 hover:text-red-900 focus-visible:outline-[3px] focus-visible:outline-offset-2 focus-visible:outline-red-600"
                 href={ searchResultsHref }
                 onClick={ () => setIsFocused(false) }
               >
@@ -167,7 +266,7 @@ export const StatusMessage = ({
 }) => (
   <p
     className={[
-      "mb-6 rounded-lg border px-4 py-3 text-sm font-semibold",
+      "mb-6 rounded-lg border px-4 py-3 text-sm font-semibold shadow-sm",
       tone === "error"
         ? "border-rose-200 bg-rose-50 text-rose-800"
         : "border-slate-200 bg-white text-slate-700"
@@ -189,8 +288,8 @@ export const SectionHeading = ({
 }) => (
   <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
     <div>
-      { eyebrow && <p className="mb-1 text-xs font-extrabold uppercase tracking-normal text-slate-500">{ eyebrow }</p> }
-      <h2 className="text-xl font-extrabold tracking-normal text-slate-950 sm:text-2xl">{ title }</h2>
+      { eyebrow && <p className="mb-1 text-xs font-extrabold uppercase tracking-normal text-red-700">{ eyebrow }</p> }
+      <h2 className="text-xl font-black tracking-normal text-slate-950 sm:text-2xl">{ title }</h2>
     </div>
     { action }
   </div>
@@ -222,15 +321,15 @@ export const BookCover = ({
 );
 
 export const BookMeta = ({ book }: { book: DisplayBook }) => {
-  const price = formatPrice(book.price);
+  const price = formatPrice(book.price, book.currency);
 
   if (!book.rating && !price && !book.discount) return null;
 
   return (
-    <p className="flex flex-wrap gap-1.5 text-xs font-bold text-slate-700">
-      { book.rating && <span className="rounded-md border border-slate-200 bg-slate-50 px-2 py-1">Rating { book.rating.toFixed(1) }</span> }
-      { price && <span className="rounded-md border border-slate-200 bg-slate-50 px-2 py-1">{ price }</span> }
-      { Boolean(book.discount) && <span className="rounded-md border border-amber-200 bg-amber-50 px-2 py-1 text-amber-800">{ book.discount }% off</span> }
+    <p className="flex flex-wrap items-center gap-2 text-xs font-extrabold text-slate-700">
+      { book.rating && <span className="rounded-md border border-amber-200 bg-amber-50 px-2 py-1 text-amber-800">Rating { book.rating.toFixed(1) }</span> }
+      { price && <span className="text-sm font-black text-red-700">{ price }</span> }
+      { Boolean(book.discount) && <span className="rounded-md border border-red-200 bg-red-50 px-2 py-1 text-red-700">{ book.discount }% off</span> }
     </p>
   );
 };
@@ -298,7 +397,7 @@ export const BookReadProgress = ({ book }: { book: DisplayBook }) => {
     <div className="mb-3">
       <div className="mb-1 flex items-center justify-between gap-3 text-[0.7rem] font-extrabold uppercase tracking-normal text-slate-500">
         <span>Read</span>
-        <span className="text-orange-700">{ progress }%</span>
+        <span className="text-red-700">{ progress }%</span>
       </div>
       <div
         aria-label={ `${ progress }% read` }
@@ -309,7 +408,7 @@ export const BookReadProgress = ({ book }: { book: DisplayBook }) => {
         role="progressbar"
       >
         <span
-          className="block h-full rounded-full bg-orange-500 transition-[width] duration-300"
+          className="block h-full rounded-full bg-red-600 transition-[width] duration-300"
           style={{ width: `${ progress }%` }}
         />
       </div>
@@ -342,17 +441,17 @@ export const SearchResultList = ({
         <li key={ result.id }>
           <Link
             className={[
-              "group grid min-w-0 items-center text-slate-900 transition hover:bg-orange-50 focus-visible:outline-[3px] focus-visible:outline-offset-2 focus-visible:outline-orange-600",
+              "group grid min-w-0 items-center text-slate-900 transition hover:bg-red-50 focus-visible:outline-[3px] focus-visible:outline-offset-2 focus-visible:outline-red-600",
               compact
                 ? "min-h-[72px] grid-cols-[52px_minmax(0,1fr)_auto] gap-3 rounded-lg p-2"
-                : "min-h-32 grid-cols-[74px_minmax(0,1fr)] gap-4 rounded-lg border border-slate-200 bg-white p-4 shadow-sm hover:-translate-y-1 hover:border-orange-200 hover:shadow-lg"
+                : "min-h-32 grid-cols-[74px_minmax(0,1fr)] gap-4 rounded-lg border border-slate-200 bg-white p-4 shadow-sm hover:-translate-y-1 hover:border-red-200 hover:shadow-lg"
             ].join(" ") }
             href={ result.href }
             onClick={ onResultClick }
           >
             <span
               className={[
-                "grid shrink-0 place-items-center overflow-hidden bg-slate-100 text-lg font-black text-orange-800",
+                "grid shrink-0 place-items-center overflow-hidden bg-slate-100 text-lg font-black text-red-800",
                 frameClass
               ].join(" ") }
             >
@@ -371,7 +470,7 @@ export const SearchResultList = ({
               ) }
             </span>
             <span className="min-w-0">
-              <span className="block truncate text-sm font-extrabold leading-snug tracking-normal text-slate-950 group-hover:text-orange-700 sm:text-base">{ result.title }</span>
+              <span className="block truncate text-sm font-extrabold leading-snug tracking-normal text-slate-950 group-hover:text-red-700 sm:text-base">{ result.title }</span>
               { result.subtitle && <span className="mt-1 block truncate text-sm font-semibold text-slate-600">{ result.subtitle }</span> }
               { !compact && <span className="mt-2 inline-flex rounded-md border border-slate-200 bg-slate-50 px-2 py-1 text-xs font-extrabold uppercase tracking-normal text-slate-600">{ isAuthor ? "Author" : "Book" }</span> }
             </span>
@@ -391,35 +490,44 @@ export const BookCard = ({
   priority?: boolean;
 }) => (
   <Link
-    className="group grid min-h-full grid-rows-[minmax(176px,auto)_minmax(128px,1fr)] overflow-hidden rounded-lg border border-slate-200 bg-white text-inherit shadow-sm transition hover:-translate-y-1 hover:border-orange-200 hover:shadow-xl focus-visible:outline-[3px] focus-visible:outline-offset-2 focus-visible:outline-orange-600 sm:grid-rows-[minmax(220px,auto)_minmax(144px,1fr)]"
+    className="group grid min-h-full grid-rows-[210px_minmax(150px,1fr)] overflow-hidden rounded-lg border border-slate-200 bg-white text-inherit shadow-sm transition hover:-translate-y-1 hover:border-red-200 hover:shadow-xl focus-visible:outline-[3px] focus-visible:outline-offset-2 focus-visible:outline-red-600 sm:grid-rows-[250px_minmax(156px,1fr)]"
     href={ book.productUrl }
   >
     <figure
-      className="relative w-full"
+      className="relative w-full overflow-hidden"
       style={{
-        background: `linear-gradient(135deg, color-mix(in srgb, ${ book.color } 24%, #ffffff), #f1f5f9)`
+        background: `linear-gradient(135deg, color-mix(in srgb, ${ book.color } 34%, #ffffff), #f8fafc)`
       }}
     >
+      { Boolean(book.discount) && (
+        <span className="absolute left-3 top-3 z-10 rounded-md bg-red-700 px-2 py-1 text-[0.68rem] font-black text-white shadow-sm">
+          { book.discount }% off
+        </span>
+      ) }
       <BookCover
+        className="p-5 transition duration-300 group-hover:scale-105"
         src={ book.cover }
         title={ book.title }
         priority={ priority }
       />
     </figure>
     <div className="flex min-w-0 flex-col p-3">
-      <h3 className="mb-2 text-sm font-extrabold leading-snug tracking-normal text-slate-950 group-hover:text-orange-700 sm:text-base">{ book.title }</h3>
-      { book.author && <p className="mb-3 text-sm leading-5 text-slate-600">{ book.author }</p> }
+      <p className="mb-2 text-[0.68rem] font-extrabold uppercase tracking-normal text-slate-500">eBook</p>
+      <h3 className="mb-2 text-sm font-black leading-snug tracking-normal text-slate-950 group-hover:text-red-700 sm:text-base">{ book.title }</h3>
+      { book.author && <p className="mb-3 text-sm font-semibold leading-5 text-slate-600">{ book.author }</p> }
       { !book.author && book.subtitle && <p className="mb-3 text-sm leading-5 text-slate-600">{ book.subtitle }</p> }
-      <div className="mt-auto">
-        <BookReadProgress book={ book } />
+      <div className="mt-auto grid gap-3">
         <BookMeta book={ book } />
+        <span className="inline-flex min-h-9 items-center justify-center rounded-lg border border-slate-200 bg-slate-50 px-3 text-xs font-black text-slate-900 transition group-hover:border-red-200 group-hover:bg-red-50 group-hover:text-red-700">
+          View details
+        </span>
       </div>
     </div>
   </Link>
 );
 
 export const BookGrid = ({ books }: { books: DisplayBook[] }) => (
-  <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-5">
+  <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6">
     { books.map((book, index) => (
       <BookCard
         book={ book }
@@ -432,14 +540,13 @@ export const BookGrid = ({ books }: { books: DisplayBook[] }) => (
 
 export const PopularCategoryCard = ({ category }: { category: DisplayCategory }) => (
   <Link
-    className="group relative isolate min-h-36 overflow-hidden rounded-lg p-5 text-white shadow-sm transition hover:-translate-y-1 hover:shadow-xl focus-visible:outline-[3px] focus-visible:outline-offset-2 focus-visible:outline-orange-600 sm:min-h-40"
+    className="group relative isolate min-h-32 overflow-hidden rounded-lg border border-slate-200 p-4 text-slate-950 shadow-sm transition hover:-translate-y-1 hover:border-red-200 hover:shadow-xl focus-visible:outline-[3px] focus-visible:outline-offset-2 focus-visible:outline-red-600 sm:min-h-36"
     href={ category.href }
     style={{
-      background: `linear-gradient(110deg, ${ category.color } 0%, color-mix(in srgb, ${ category.color } 54%, #ffffff) 63%, color-mix(in srgb, ${ category.color } 16%, #ffffff) 100%)`
+      background: `linear-gradient(110deg, color-mix(in srgb, ${ category.color } 76%, #ffffff) 0%, #ffffff 100%)`
     }}
   >
-    <span className="absolute inset-0 bg-gradient-to-r from-black/24 via-black/5 to-white/12" />
-    <h3 className="relative z-10 max-w-[76%] md:text-xl font-black leading-tight tracking-normal text-white drop-shadow-sm text-sm">
+    <h3 className="relative z-10 max-w-[74%] text-sm font-black leading-tight tracking-normal text-slate-950 md:text-lg">
       { category.name }
     </h3>
     { category.icon && (
@@ -450,7 +557,7 @@ export const PopularCategoryCard = ({ category }: { category: DisplayCategory })
         height={ 140 }
         loading="lazy"
         aria-hidden="true"
-        className="absolute bottom-[-8px] right-[-5px] z-0 h-[70%] w-auto max-w-[50%] object-contain drop-shadow-lg transition duration-300 group-hover:scale-105"
+        className="absolute bottom-[-8px] right-[-5px] z-0 h-[72%] w-auto max-w-[52%] object-contain drop-shadow-lg transition duration-300 group-hover:scale-105"
       />
     ) }
   </Link>
@@ -458,7 +565,7 @@ export const PopularCategoryCard = ({ category }: { category: DisplayCategory })
 
 export const CategoryCard = ({ category }: { category: DisplayCategory }) => (
   <Link
-    className="group grid min-h-20 grid-cols-[42px_minmax(0,1fr)] items-center gap-3 rounded-lg border border-slate-200 bg-white p-3 shadow-sm transition hover:-translate-y-1 hover:border-orange-200 hover:shadow-lg focus-visible:outline-[3px] focus-visible:outline-offset-2 focus-visible:outline-orange-600 sm:p-4"
+    className="group grid min-h-20 grid-cols-[42px_minmax(0,1fr)] items-center gap-3 rounded-lg border border-slate-200 bg-white p-3 shadow-sm transition hover:-translate-y-1 hover:border-red-200 hover:shadow-lg focus-visible:outline-[3px] focus-visible:outline-offset-2 focus-visible:outline-red-600 sm:p-4"
     href={ category.href }
     style={{ borderLeftColor: category.color, borderLeftWidth: 4 }}
   >
@@ -477,13 +584,13 @@ export const CategoryCard = ({ category }: { category: DisplayCategory }) => (
         />
       </span>
     ) }
-    <h3 className="text-sm font-extrabold leading-snug tracking-normal text-slate-800 group-hover:text-orange-700 sm:text-base">{ category.name }</h3>
+    <h3 className="text-sm font-extrabold leading-snug tracking-normal text-slate-800 group-hover:text-red-700 sm:text-base">{ category.name }</h3>
   </Link>
 );
 
 export const AuthorCard = ({ author }: { author: DisplayProfile }) => (
   <Link
-    className="group grid min-h-40 justify-items-center gap-3 rounded-lg border border-slate-200 bg-white p-4 text-center shadow-sm transition hover:-translate-y-1 hover:border-orange-200 hover:shadow-lg focus-visible:outline-[3px] focus-visible:outline-offset-2 focus-visible:outline-orange-600"
+    className="group grid min-h-40 justify-items-center gap-3 rounded-lg border border-slate-200 bg-white p-4 text-center shadow-sm transition hover:-translate-y-1 hover:border-red-200 hover:shadow-lg focus-visible:outline-[3px] focus-visible:outline-offset-2 focus-visible:outline-red-600"
     href={ author.href }
   >
     { author.imageUrl && (
@@ -497,12 +604,12 @@ export const AuthorCard = ({ author }: { author: DisplayProfile }) => (
         className="h-[76px] w-[76px] rounded-full object-cover"
       />
     ) }
-    <h3 className="text-sm font-extrabold leading-snug tracking-normal text-slate-800 group-hover:text-orange-700">{ author.name }</h3>
+    <h3 className="text-sm font-extrabold leading-snug tracking-normal text-slate-800 group-hover:text-red-700">{ author.name }</h3>
   </Link>
 );
 
 export const EmptyState = ({ children }: { children: ReactNode }) => (
-  <div className="rounded-lg border border-dashed border-slate-300 bg-white p-8 text-center text-slate-600">
+  <div className="rounded-lg border border-dashed border-slate-300 bg-white p-8 text-center font-semibold text-slate-600">
     { children }
   </div>
 );
